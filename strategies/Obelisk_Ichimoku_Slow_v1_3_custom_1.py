@@ -67,7 +67,7 @@ def ssl_atr(dataframe, length = 7):
     df['sslUp'] = np.where(df['hlv'] < 0, df['smaLow'], df['smaHigh'])
     return df['sslDown'], df['sslUp']
 
-class Obelisk_Ichimoku_Slow_v1_3_custom_2_without_nan(IStrategy):
+class Obelisk_Ichimoku_Slow_v1_3_custom_1(IStrategy):
 
     # Optimal timeframe for the strategy
     timeframe = '1h'
