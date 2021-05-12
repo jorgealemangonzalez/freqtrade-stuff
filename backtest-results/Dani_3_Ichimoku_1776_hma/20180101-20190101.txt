@@ -1,0 +1,247 @@
+Result for strategy Obelisk_Ichimoku_Slow_v1_3_custom_2_without_nan
+============================================================= BACKTESTING REPORT ============================================================
+|      Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |    Avg Duration |   Wins |   Draws |   Losses |
+|-----------+--------+----------------+----------------+-------------------+----------------+-----------------+--------+---------+----------|
+|  ETH/USDT |     34 |           1.01 |          34.33 |             6.581 |           6.58 |  1 day, 8:19:00 |     15 |       0 |       19 |
+| IOTA/USDT |     11 |           3.09 |          34.01 |             6.377 |           6.38 | 1 day, 14:33:00 |      6 |       0 |        5 |
+|  TRX/USDT |     13 |           2.32 |          30.10 |             5.880 |           5.88 | 2 days, 6:42:00 |      6 |       0 |        7 |
+|  ADA/USDT |     17 |           0.67 |          11.39 |             2.182 |           2.18 | 1 day, 21:07:00 |      9 |       0 |        8 |
+|  LTC/USDT |     29 |           0.12 |           3.55 |             0.628 |           0.63 |  1 day, 7:14:00 |     10 |       0 |       19 |
+|  ICX/USDT |     13 |          -1.04 |         -13.54 |            -3.054 |          -3.05 |  1 day, 0:00:00 |      5 |       0 |        8 |
+|  EOS/USDT |     14 |          -1.04 |         -14.60 |            -3.497 |          -3.50 | 1 day, 18:56:00 |      5 |       0 |        9 |
+|  ETC/USDT |     17 |          -3.10 |         -52.72 |           -11.092 |         -11.09 |  1 day, 9:07:00 |      1 |       0 |       16 |
+|     TOTAL |    148 |           0.22 |          32.54 |             4.006 |           4.01 | 1 day, 12:22:00 |     57 |       0 |       91 |
+====================================================== SELL REASON STATS =======================================================
+|   Sell Reason |   Sells |   Wins |   Draws |   Losses |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |
+|---------------+---------+--------+---------+----------+----------------+----------------+-------------------+----------------|
+|   sell_signal |     147 |     57 |       0 |       90 |           0.24 |          35.33 |             4.596 |           7.07 |
+|    force_sell |       1 |      0 |       0 |        1 |          -2.79 |          -2.79 |            -0.59  |          -0.56 |
+========================================================= LEFT OPEN TRADES REPORT ==========================================================
+|      Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |   Avg Duration |   Wins |   Draws |   Losses |
+|-----------+--------+----------------+----------------+-------------------+----------------+----------------+--------+---------+----------|
+| IOTA/USDT |      1 |          -2.79 |          -2.79 |            -0.590 |          -0.59 |        6:00:00 |      0 |       0 |        1 |
+|     TOTAL |      1 |          -2.79 |          -2.79 |            -0.590 |          -0.59 |        6:00:00 |      0 |       0 |        1 |
+=============== SUMMARY METRICS ===============
+| Metric                | Value               |
+|-----------------------+---------------------|
+| Backtesting from      | 2018-01-01 00:00:00 |
+| Backtesting to        | 2019-01-01 00:00:00 |
+| Max open trades       | 5                   |
+|                       |                     |
+| Total trades          | 148                 |
+| Starting balance      | 100.000 USDT        |
+| Final balance         | 104.006 USDT        |
+| Absolute profit       | 4.006 USDT          |
+| Total profit %        | 4.01%               |
+| Trades per day        | 0.41                |
+| Avg. stake amount     | 20.408 USDT         |
+| Total trade volume    | 3020.340 USDT       |
+|                       |                     |
+| Best Pair             | ETH/USDT 34.33%     |
+| Worst Pair            | ETC/USDT -52.72%    |
+| Best trade            | LTC/USDT 32.82%     |
+| Worst trade           | TRX/USDT -15.09%    |
+| Best day              | 7.943 USDT          |
+| Worst day             | -3.704 USDT         |
+| Days win/draw/lose    | 30 / 283 / 49       |
+| Avg. Duration Winners | 2 days, 6:14:00     |
+| Avg. Duration Loser   | 1 day, 1:11:00      |
+|                       |                     |
+| Min balance           | 92.793 USDT         |
+| Max balance           | 114.861 USDT        |
+| Drawdown              | 102.73%             |
+| Drawdown              | 22.068 USDT         |
+| Drawdown high         | 14.861 USDT         |
+| Drawdown low          | -7.207 USDT         |
+| Drawdown Start        | 2018-06-03 19:00:00 |
+| Drawdown End          | 2018-12-03 03:00:00 |
+| Market change         | -78.86%             |
+===============================================
+
+Result for strategy Obelisk_Ichimoku_Slow_v1_3_custom_2_without_nan_stoploss
+============================================================= BACKTESTING REPORT ============================================================
+|      Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |    Avg Duration |   Wins |   Draws |   Losses |
+|-----------+--------+----------------+----------------+-------------------+----------------+-----------------+--------+---------+----------|
+|  TRX/USDT |     13 |           2.69 |          35.01 |             6.846 |           6.85 | 2 days, 5:55:00 |      6 |       0 |        7 |
+| IOTA/USDT |     11 |           3.09 |          34.01 |             6.360 |           6.36 | 1 day, 14:33:00 |      6 |       0 |        5 |
+|  ETH/USDT |     34 |           0.95 |          32.45 |             6.185 |           6.18 |  1 day, 8:18:00 |     15 |       0 |       19 |
+|  ADA/USDT |     17 |           0.67 |          11.39 |             2.186 |           2.19 | 1 day, 21:07:00 |      9 |       0 |        8 |
+|  LTC/USDT |     29 |           0.12 |           3.55 |             0.621 |           0.62 |  1 day, 7:14:00 |     10 |       0 |       19 |
+|  EOS/USDT |     14 |          -1.04 |         -14.60 |            -3.486 |          -3.49 | 1 day, 18:56:00 |      5 |       0 |        9 |
+|  ICX/USDT |     13 |          -1.31 |         -16.98 |            -3.728 |          -3.73 |        23:55:00 |      5 |       0 |        8 |
+|  ETC/USDT |     17 |          -3.09 |         -52.52 |           -11.016 |         -11.02 |  1 day, 9:04:00 |      1 |       0 |       16 |
+|     TOTAL |    148 |           0.22 |          32.32 |             3.969 |           3.97 | 1 day, 12:17:00 |     57 |       0 |       91 |
+====================================================== SELL REASON STATS =======================================================
+|   Sell Reason |   Sells |   Wins |   Draws |   Losses |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |
+|---------------+---------+--------+---------+----------+----------------+----------------+-------------------+----------------|
+|   sell_signal |     143 |     57 |       0 |       86 |           0.53 |          75.83 |            12.789 |          15.17 |
+|     stop_loss |       4 |      0 |       0 |        4 |         -10.18 |         -40.72 |            -8.231 |          -8.14 |
+|    force_sell |       1 |      0 |       0 |        1 |          -2.79 |          -2.79 |            -0.589 |          -0.56 |
+========================================================= LEFT OPEN TRADES REPORT ==========================================================
+|      Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |   Avg Duration |   Wins |   Draws |   Losses |
+|-----------+--------+----------------+----------------+-------------------+----------------+----------------+--------+---------+----------|
+| IOTA/USDT |      1 |          -2.79 |          -2.79 |            -0.589 |          -0.59 |        6:00:00 |      0 |       0 |        1 |
+|     TOTAL |      1 |          -2.79 |          -2.79 |            -0.589 |          -0.59 |        6:00:00 |      0 |       0 |        1 |
+=============== SUMMARY METRICS ===============
+| Metric                | Value               |
+|-----------------------+---------------------|
+| Backtesting from      | 2018-01-01 00:00:00 |
+| Backtesting to        | 2019-01-01 00:00:00 |
+| Max open trades       | 5                   |
+|                       |                     |
+| Total trades          | 148                 |
+| Starting balance      | 100.000 USDT        |
+| Final balance         | 103.969 USDT        |
+| Absolute profit       | 3.969 USDT          |
+| Total profit %        | 3.97%               |
+| Trades per day        | 0.41                |
+| Avg. stake amount     | 20.329 USDT         |
+| Total trade volume    | 3008.666 USDT       |
+|                       |                     |
+| Best Pair             | TRX/USDT 35.01%     |
+| Worst Pair            | ETC/USDT -52.52%    |
+| Best trade            | LTC/USDT 32.82%     |
+| Worst trade           | ETH/USDT -10.18%    |
+| Best day              | 7.937 USDT          |
+| Worst day             | -3.690 USDT         |
+| Days win/draw/lose    | 30 / 283 / 49       |
+| Avg. Duration Winners | 2 days, 6:14:00     |
+| Avg. Duration Loser   | 1 day, 1:03:00      |
+|                       |                     |
+| Min balance           | 92.723 USDT         |
+| Max balance           | 114.426 USDT        |
+| Drawdown              | 101.26%             |
+| Drawdown              | 21.702 USDT         |
+| Drawdown high         | 14.426 USDT         |
+| Drawdown low          | -7.277 USDT         |
+| Drawdown Start        | 2018-06-03 19:00:00 |
+| Drawdown End          | 2018-12-03 03:00:00 |
+| Market change         | -78.86%             |
+===============================================
+
+Result for strategy Dani_3_Ichimoku
+============================================================= BACKTESTING REPORT =============================================================
+|      Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |     Avg Duration |   Wins |   Draws |   Losses |
+|-----------+--------+----------------+----------------+-------------------+----------------+------------------+--------+---------+----------|
+|  ETH/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  ADA/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  TRX/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+| IOTA/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  EOS/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  ICX/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  LTC/USDT |      1 |          -2.08 |          -2.08 |            -0.411 |          -0.41 | 4 days, 15:00:00 |      0 |       0 |        1 |
+|  ETC/USDT |      1 |         -11.53 |         -11.53 |            -2.276 |          -2.28 |         15:00:00 |      0 |       0 |        1 |
+|     TOTAL |      2 |          -6.80 |         -13.61 |            -2.688 |          -2.69 | 2 days, 15:00:00 |      0 |       0 |        2 |
+====================================================== SELL REASON STATS =======================================================
+|   Sell Reason |   Sells |   Wins |   Draws |   Losses |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |
+|---------------+---------+--------+---------+----------+----------------+----------------+-------------------+----------------|
+|   sell_signal |       2 |      0 |       0 |        2 |           -6.8 |         -13.61 |            -2.688 |          -2.72 |
+======================================================== LEFT OPEN TRADES REPORT ========================================================
+|   Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |   Avg Duration |   Wins |   Draws |   Losses |
+|--------+--------+----------------+----------------+-------------------+----------------+----------------+--------+---------+----------|
+|  TOTAL |      0 |           0.00 |           0.00 |             0.000 |           0.00 |           0:00 |      0 |       0 |        0 |
+=============== SUMMARY METRICS ===============
+| Metric                | Value               |
+|-----------------------+---------------------|
+| Backtesting from      | 2018-01-01 00:00:00 |
+| Backtesting to        | 2019-01-01 00:00:00 |
+| Max open trades       | 5                   |
+|                       |                     |
+| Total trades          | 2                   |
+| Starting balance      | 100.000 USDT        |
+| Final balance         | 97.312 USDT         |
+| Absolute profit       | -2.688 USDT         |
+| Total profit %        | -2.69%              |
+| Trades per day        | 0.01                |
+| Avg. stake amount     | 19.759 USDT         |
+| Total trade volume    | 39.519 USDT         |
+|                       |                     |
+| Best Pair             | ETH/USDT 0.0%       |
+| Worst Pair            | ETC/USDT -11.53%    |
+| Best trade            | LTC/USDT -2.08%     |
+| Worst trade           | ETC/USDT -11.53%    |
+| Best day              | 0.000 USDT          |
+| Worst day             | -2.276 USDT         |
+| Days win/draw/lose    | 0 / 91 / 2          |
+| Avg. Duration Winners | 0:00:00             |
+| Avg. Duration Loser   | 2 days, 15:00:00    |
+|                       |                     |
+| Min balance           | 97.312 USDT         |
+| Max balance           | 99.589 USDT         |
+| Drawdown              | 11.53%              |
+| Drawdown              | 2.276 USDT          |
+| Drawdown high         | -0.411 USDT         |
+| Drawdown low          | -2.688 USDT         |
+| Drawdown Start        | 2018-06-05 03:00:00 |
+| Drawdown End          | 2018-09-05 11:00:00 |
+| Market change         | -78.86%             |
+===============================================
+
+Result for strategy Dani_3_Ichimoku_hma
+============================================================= BACKTESTING REPORT =============================================================
+|      Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |     Avg Duration |   Wins |   Draws |   Losses |
+|-----------+--------+----------------+----------------+-------------------+----------------+------------------+--------+---------+----------|
+|  ADA/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  ETC/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+| IOTA/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  EOS/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  ICX/USDT |      0 |           0.00 |           0.00 |             0.000 |           0.00 |             0:00 |      0 |       0 |        0 |
+|  TRX/USDT |      1 |          -1.21 |          -1.21 |            -0.236 |          -0.24 |  3 days, 1:00:00 |      0 |       0 |        1 |
+|  ETH/USDT |      1 |          -4.05 |          -4.05 |            -0.803 |          -0.80 |  7 days, 2:00:00 |      0 |       0 |        1 |
+|  LTC/USDT |      1 |          -4.71 |          -4.71 |            -0.933 |          -0.93 | 2 days, 12:00:00 |      0 |       0 |        1 |
+|     TOTAL |      3 |          -3.32 |          -9.97 |            -1.971 |          -1.97 |  4 days, 5:00:00 |      0 |       0 |        3 |
+====================================================== SELL REASON STATS =======================================================
+|   Sell Reason |   Sells |   Wins |   Draws |   Losses |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |
+|---------------+---------+--------+---------+----------+----------------+----------------+-------------------+----------------|
+|   sell_signal |       3 |      0 |       0 |        3 |          -3.32 |          -9.97 |            -1.971 |          -1.99 |
+======================================================== LEFT OPEN TRADES REPORT ========================================================
+|   Pair |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |   Avg Duration |   Wins |   Draws |   Losses |
+|--------+--------+----------------+----------------+-------------------+----------------+----------------+--------+---------+----------|
+|  TOTAL |      0 |           0.00 |           0.00 |             0.000 |           0.00 |           0:00 |      0 |       0 |        0 |
+=============== SUMMARY METRICS ===============
+| Metric                | Value               |
+|-----------------------+---------------------|
+| Backtesting from      | 2018-01-01 00:00:00 |
+| Backtesting to        | 2019-01-01 00:00:00 |
+| Max open trades       | 5                   |
+|                       |                     |
+| Total trades          | 3                   |
+| Starting balance      | 100.000 USDT        |
+| Final balance         | 98.029 USDT         |
+| Absolute profit       | -1.971 USDT         |
+| Total profit %        | -1.97%              |
+| Trades per day        | 0.01                |
+| Avg. stake amount     | 19.685 USDT         |
+| Total trade volume    | 59.056 USDT         |
+|                       |                     |
+| Best Pair             | ADA/USDT 0.0%       |
+| Worst Pair            | LTC/USDT -4.71%     |
+| Best trade            | TRX/USDT -1.21%     |
+| Worst trade           | LTC/USDT -4.71%     |
+| Best day              | 0.000 USDT          |
+| Worst day             | -0.933 USDT         |
+| Days win/draw/lose    | 0 / 154 / 3         |
+| Avg. Duration Winners | 0:00:00             |
+| Avg. Duration Loser   | 4 days, 5:00:00     |
+|                       |                     |
+| Min balance           | 98.029 USDT         |
+| Max balance           | 99.067 USDT         |
+| Drawdown              | 5.26%               |
+| Drawdown              | 1.038 USDT          |
+| Drawdown high         | -0.933 USDT         |
+| Drawdown low          | -1.971 USDT         |
+| Drawdown Start        | 2018-06-05 03:00:00 |
+| Drawdown End          | 2018-11-08 19:00:00 |
+| Market change         | -78.86%             |
+===============================================
+
+====================================================================================== STRATEGY SUMMARY =====================================================================================
+|                                                 Strategy |   Buys |   Avg Profit % |   Cum Profit % |   Tot Profit USDT |   Tot Profit % |     Avg Duration |   Wins |   Draws |   Losses |
+|----------------------------------------------------------+--------+----------------+----------------+-------------------+----------------+------------------+--------+---------+----------|
+|          Obelisk_Ichimoku_Slow_v1_3_custom_2_without_nan |    148 |           0.22 |          32.54 |             4.006 |           4.01 |  1 day, 12:22:00 |     57 |       0 |       91 |
+| Obelisk_Ichimoku_Slow_v1_3_custom_2_without_nan_stoploss |    148 |           0.22 |          32.32 |             3.969 |           3.97 |  1 day, 12:17:00 |     57 |       0 |       91 |
+|                                          Dani_3_Ichimoku |      2 |          -6.80 |         -13.61 |            -2.688 |          -2.69 | 2 days, 15:00:00 |      0 |       0 |        2 |
+|                                      Dani_3_Ichimoku_hma |      3 |          -3.32 |          -9.97 |            -1.971 |          -1.97 |  4 days, 5:00:00 |      0 |       0 |        3 |
+=============================================================================================================================================================================================
+
+For more details, please look at the detail tables above
