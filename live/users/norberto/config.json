@@ -1,5 +1,5 @@
 {
-    "dry_run": false,
+    "dry_run": true,
     "timeframe": "1h",
     "max_open_trades": 5,
     "stake_currency": "USDT",
