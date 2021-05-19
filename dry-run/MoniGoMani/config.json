@@ -1,4 +1,5 @@
 {
+    "strategy": "MoniGoManiHyperStrategy",
     "dry_run": true,
     "timeframe": "1h",
     "max_open_trades": 5,

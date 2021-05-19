@@ -1,4 +1,5 @@
 {
+    "strategy": "Dani_3_Ichimoku_888_hma_5m_5m_ABC",
     "dry_run": true,
     "timeframe": "5m",
     "max_open_trades": 5,
