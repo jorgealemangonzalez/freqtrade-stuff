@@ -85,7 +85,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Miku_1m_CSen444(IStrategy):
+class Miku_1m_5m_CSen444(IStrategy):
     # Optimal timeframe for the strategy
     timeframe = '1m'
 
@@ -124,7 +124,7 @@ class Miku_1m_CSen444(IStrategy):
 
         dataframe5m = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe="5m")
 
-        create_ichimoku(dataframe5m, conversion_line_period=1776, displacement=888, base_line_periods=888, laggin_span=888)
+        create_ichimoku(dataframe5m, conversion_line_period=355, displacement=880, base_line_periods=175, laggin_span=175)
 
         dataframe5m['hma888'] = ftt.hull_moving_average(dataframe5m, 888)
         dataframe = merge_informative_pair(dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
@@ -135,10 +135,10 @@ class Miku_1m_CSen444(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=20, displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=9, displacement=26, base_line_periods=26, laggin_span=52)
         create_ichimoku(dataframe, conversion_line_period=444, displacement=444, base_line_periods=444, laggin_span=444)
-        create_ichimoku(dataframe, conversion_line_period=1776, displacement=888, base_line_periods=888, laggin_span=888)
+        create_ichimoku(dataframe, conversion_line_period=355, displacement=888, base_line_periods=175, laggin_span=175)
 
         dataframe['ichimoku_ok'] = (
-                                           (dataframe['kijun_sen_1776'] >= dataframe['tenkan_sen_1776']) &
+                                           (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
                                            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
                                            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
                                            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
