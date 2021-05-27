@@ -96,7 +96,7 @@ class Miku_1m_5m_CSen355_5m(IStrategy):
     # shorter startup_candle_count your results will be unstable/invalid
     # for up to a week from the start of your backtest or dry/live run
     # (180 candles = 7.5 days)
-    startup_candle_count = 999  # MAXIMUM ICHIMOKU
+    startup_candle_count = 444  # MAXIMUM ICHIMOKU
 
     # NOTE: this strat only uses candle information, so processing between
     # new candles is a waste of resources as nothing will change
