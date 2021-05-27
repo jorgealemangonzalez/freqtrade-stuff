@@ -85,7 +85,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Miku_1m_CSen444(IStrategy):
+class Miku_1m_5m_CSen355_5m(IStrategy):
     # Optimal timeframe for the strategy
     timeframe = '1m'
 
@@ -96,7 +96,7 @@ class Miku_1m_CSen444(IStrategy):
     # shorter startup_candle_count your results will be unstable/invalid
     # for up to a week from the start of your backtest or dry/live run
     # (180 candles = 7.5 days)
-    startup_candle_count = 1776  # MAXIMUM ICHIMOKU
+    startup_candle_count = 444  # MAXIMUM ICHIMOKU
 
     # NOTE: this strat only uses candle information, so processing between
     # new candles is a waste of resources as nothing will change
@@ -124,7 +124,7 @@ class Miku_1m_CSen444(IStrategy):
 
         dataframe5m = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe="5m")
 
-        create_ichimoku(dataframe5m, conversion_line_period=1776, displacement=888, base_line_periods=888, laggin_span=888)
+        create_ichimoku(dataframe5m, conversion_line_period=355, displacement=880, base_line_periods=175, laggin_span=175)
 
         dataframe5m['hma888'] = ftt.hull_moving_average(dataframe5m, 888)
         dataframe = merge_informative_pair(dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
@@ -135,10 +135,10 @@ class Miku_1m_CSen444(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=20, displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=9, displacement=26, base_line_periods=26, laggin_span=52)
         create_ichimoku(dataframe, conversion_line_period=444, displacement=444, base_line_periods=444, laggin_span=444)
-        create_ichimoku(dataframe, conversion_line_period=1776, displacement=888, base_line_periods=888, laggin_span=888)
+        create_ichimoku(dataframe, conversion_line_period=355, displacement=888, base_line_periods=175, laggin_span=175)
 
         dataframe['ichimoku_ok'] = (
-                                           (dataframe['kijun_sen_1776'] >= dataframe['tenkan_sen_1776']) &
+                                           (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
                                            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
                                            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
                                            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
@@ -147,7 +147,7 @@ class Miku_1m_CSen444(IStrategy):
                                    ).astype('int') * 4
 
         dataframe['trending_over'] = (
-                                         (dataframe['senkou_b_444'] > dataframe['close'])
+                                         (dataframe['senkou_b_355_5m'] > dataframe['close'])
                                      ).astype('int') * 1
 
         dataframe.loc[(dataframe['ichimoku_ok'] > 0), 'trending'] = 3

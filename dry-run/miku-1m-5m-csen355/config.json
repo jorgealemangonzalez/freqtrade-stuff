@@ -1,5 +1,5 @@
 {
-    "strategy": "Miku_1m_CSen1776",
+    "strategy": "Miku_1m_5m_CSen355_5m",
     "dry_run": true,
     "timeframe": "1m",
     "max_open_trades": 5,
