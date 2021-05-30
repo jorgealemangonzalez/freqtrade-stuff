@@ -86,7 +86,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Miku_1m_5m_CSen355_5m(IStrategy):
+class test_class(IStrategy):
     # Optimal timeframe for the strategy
     timeframe = '1m'
 
