@@ -1,6 +1,6 @@
 {
     
-    "strategy": "Miku_1m_5m_CSen355_5m",
+    "strategy": "test_class",
     "dry_run": true,
     "timeframe": "1m",
     "max_open_trades": 5,
