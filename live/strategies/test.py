@@ -1,5 +1,6 @@
 # --- Do not remove these libs --- x
 
+
 from freqtrade.strategy import IStrategy, merge_informative_pair
 from pandas import DataFrame
 import talib.abstract as ta
