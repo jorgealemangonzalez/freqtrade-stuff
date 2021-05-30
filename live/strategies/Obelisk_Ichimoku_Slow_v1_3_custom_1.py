@@ -1,4 +1,4 @@
-# --- Do not remove these libs --- x
+# --- Do not remove these libs --- xxxx
 
 from freqtrade.strategy import IStrategy, merge_informative_pair
 from pandas import DataFrame
