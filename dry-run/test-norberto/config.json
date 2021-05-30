@@ -1,5 +1,6 @@
 {
     
+    
     "strategy": "test_class",
     "dry_run": true,
     "timeframe": "1m",
