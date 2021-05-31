@@ -1,6 +1,6 @@
 {
     "strategy": "Miku_1m_5m_CSen444v2_N_1_5",
-    "dry_run": true,
+    "dry_run": false,
     "timeframe": "1m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
