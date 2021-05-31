@@ -32,7 +32,7 @@
         "use_sell_signal": true,
         "sell_profit_only": false,
         "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600,
+        "ignore_buying_expired_candle_after": 600
     },
     "order_types": {
         "buy": "market",
@@ -56,7 +56,7 @@
         ],
         "pair_blacklist": [
             "BNB/.*",
-            "BTC/USDT",
+            "BTC/USDT"
         ]
     },
     "pairlists": [
@@ -103,11 +103,11 @@
             ["/daily", "/profit", "/balance"],
             ["/status", "/status table", "/performance"],
             ["/whitelist", "/locks", "/trades"],
-            ["/start", "/stop", "/stopbuy", "/help"],
+            ["/start", "/stop", "/stopbuy", "/help"]
         ]
     },
     "api_server": {
-        "enabled": false,
+        "enabled": true,
         "listen_ip_address": "127.0.0.1",
         "listen_port": 8080,
         "verbosity": "info",
