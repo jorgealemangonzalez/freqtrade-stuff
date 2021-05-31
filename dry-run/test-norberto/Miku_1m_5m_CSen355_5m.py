@@ -1,4 +1,11 @@
-# --- Do not remove these libs ---
+# --- Do not remove these libs --- xxx
+
+
+
+
+# This is atesthh
+
+
 from freqtrade.strategy import IStrategy, merge_informative_pair
 from pandas import DataFrame
 import talib.abstract as ta
@@ -85,7 +92,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Miku_1m_5m_CSen355_5m(IStrategy):
+class test_class(IStrategy):
     # Optimal timeframe for the strategy
     timeframe = '1m'
 
@@ -125,11 +132,17 @@ class Miku_1m_5m_CSen355_5m(IStrategy):
         dataframe5m = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe="5m")
 
         create_ichimoku(dataframe5m, conversion_line_period=355, displacement=880, base_line_periods=175, laggin_span=175)
+
+        dataframe5m['hma888'] = ftt.hull_moving_average(dataframe5m, 888)
         dataframe = merge_informative_pair(dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
+        dataframe['hma100'] = ftt.hull_moving_average(dataframe, 100)
+        dataframe['ema550'] = ta.EMA(dataframe, timeperiod=550)
+        dataframe['ema633'] = ta.EMA(dataframe, timeperiod=633)
 
         create_ichimoku(dataframe, conversion_line_period=20, displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=9, displacement=26, base_line_periods=26, laggin_span=52)
         create_ichimoku(dataframe, conversion_line_period=444, displacement=444, base_line_periods=444, laggin_span=444)
+        create_ichimoku(dataframe, conversion_line_period=355, displacement=888, base_line_periods=175, laggin_span=175)
 
         dataframe['ichimoku_ok'] = (
                                            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
@@ -143,6 +156,10 @@ class Miku_1m_5m_CSen355_5m(IStrategy):
         dataframe['trending_over'] = (
                                          (dataframe['senkou_b_355_5m'] > dataframe['close'])
                                      ).astype('int') * 1
+
+        dataframe.loc[(dataframe['ichimoku_ok'] > 0), 'trending'] = 3
+        dataframe.loc[(dataframe['trending_over'] > 0), 'trending'] = 0
+        dataframe['trending'].fillna(method='ffill', inplace=True)
 
         return dataframe
 
@@ -178,13 +195,51 @@ class Miku_1m_5m_CSen355_5m(IStrategy):
 
     def populate_buy_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         dataframe.loc[
-            (dataframe['ichimoku_ok'] > 0)
-            & (dataframe['trending_over'] <= 0)
+            (dataframe['trending'] > 0)
             , 'buy'] = 1
         return dataframe
 
     def populate_sell_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         dataframe.loc[
-            (dataframe['trending_over'] > 0)
+            (dataframe['trending'] == 0)
             , 'sell'] = 1
         return dataframe
+
+    plot_config = {
+        # Main plot indicators (Moving averages, ...)
+        'main_plot': {
+            'senkou_a': {
+                'color': 'green',
+                'fill_to': 'senkou_b',
+                'fill_label': 'Ichimoku Cloud',
+                'fill_color': 'rgba(0,0,0,0.2)',
+            },
+            # plot senkou_b, too. Not only the area to it.
+            'senkou_b': {
+                'color': 'red',
+            },
+            'tenkan_sen': {'color': 'blue'},
+            'kijun_sen': {'color': 'orange'},
+
+            # 'chikou_span': { 'color': 'lightgreen' },
+
+            # 'ssl_up': { 'color': 'green' },
+            # 'ssl_down': { 'color': 'red' },
+
+            'hma888_5m': {'color': 'violet'},
+            'ema200': {'color': 'magenta'},
+        },
+        'subplots': {
+            "Trend": {
+                'trend_pulse': {'color': 'blue'},
+                'trending': {'color': 'orange'},
+                'trend_over': {'color': 'red'},
+            },
+            "Signals": {
+                'ichimoku_ok': {'color': 'green'},
+                'ssl_ok': {'color': 'red'},
+                'ema_ok': {'color': 'orange'},
+                'entry_ok': {'color': 'blue'},
+            },
+        }
+    }

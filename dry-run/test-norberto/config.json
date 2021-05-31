@@ -1,7 +1,12 @@
 {
-    "strategy": "MoniGoManiHyperStrategy",
+    
+    
+    
+    
+    
+    "strategy": "test_class",
     "dry_run": true,
-    "timeframe": "1h",
+    "timeframe": "1m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
@@ -32,7 +37,7 @@
         "use_sell_signal": true,
         "sell_profit_only": false,
         "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600,
+        "ignore_buying_expired_candle_after": 600
     },
     "order_types": {
         "buy": "market",
@@ -55,7 +60,7 @@
         "pair_whitelist": [
         ],
         "pair_blacklist": [
-            "BNB/.*",
+            "BNB/.*"
         ]
     },
     "pairlists": [
@@ -80,7 +85,7 @@
             "number_assets": 10,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
-        },
+        }
     ],
     "edge": {
         "enabled": false,
@@ -97,14 +102,14 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": true,
+        "enabled": false,
         "token": "",
         "chat_id": "",
         "keyboard": [
             ["/daily", "/profit", "/balance"],
             ["/status", "/status table", "/performance"],
             ["/whitelist", "/locks", "/trades"],
-            ["/start", "/stop", "/stopbuy", "/help"],
+            ["/start", "/stop", "/stopbuy", "/help"]
         ]
     },
     "api_server": {

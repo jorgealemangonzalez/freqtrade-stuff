@@ -1,5 +1,4 @@
-# --- Do not remove these libs --- xxxx
-
+# --- Do not remove these libs --- x
 
 
 from freqtrade.strategy import IStrategy, merge_informative_pair
@@ -70,7 +69,7 @@ def ssl_atr(dataframe, length = 7):
     df['sslUp'] = np.where(df['hlv'] < 0, df['smaLow'], df['smaHigh'])
     return df['sslDown'], df['sslUp']
 
-class Obelisk_Ichimoku_Slow_v1_3_custom_1(IStrategy):
+class test(IStrategy):
 
     # Optimal timeframe for the strategy
     timeframe = '1h'

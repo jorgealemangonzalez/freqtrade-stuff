@@ -1,5 +1,5 @@
 {
-    "strategy": "Miku_1m_CSen444",
+    "strategy": "Miku_1m_5m_CSen444",
     "dry_run": true,
     "timeframe": "1m",
     "max_open_trades": 5,
@@ -96,7 +96,7 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": true,
+        "enabled": false,
         "token": "",
         "chat_id": "",
         "keyboard": [
