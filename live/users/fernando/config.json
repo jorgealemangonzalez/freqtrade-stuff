@@ -79,7 +79,7 @@
             "number_assets": 30,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
-        },
+        }
     ],
     "edge": {
         "enabled": false,
