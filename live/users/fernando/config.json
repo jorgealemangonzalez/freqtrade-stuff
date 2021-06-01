@@ -55,8 +55,7 @@
         "pair_whitelist": [
         ],
         "pair_blacklist": [
-            "BNB/.*",
-            "BTC/USDT"
+            "BNB/.*"
         ]
     },
     "pairlists": [
