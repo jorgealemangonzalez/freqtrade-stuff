@@ -1,13 +1,13 @@
 {
     "strategy": "Miku_1m_5m_CSen444v2_N_1_5",
-    "dry_run": false,
+    "dry_run": true,
     "timeframe": "1m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
     "tradable_balance_ratio": 0.99,
     "fiat_display_currency": "USD",
-    "dry_run_wallet": 100,
+    "dry_run_wallet": 1000000,
     "cancel_open_orders_on_exit": false,
     "forcebuy_enable": false,
     "unfilledtimeout": {
