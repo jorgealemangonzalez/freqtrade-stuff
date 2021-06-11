@@ -1,0 +1,205 @@
+{
+    "dry_run": true,
+    "timeframe": "1h",
+    "max_open_trades": 5,
+    "stake_currency": "USDT",
+    "stake_amount": "unlimited",
+    "tradable_balance_ratio": 0.99,
+    "fiat_display_currency": "USD",
+    "dry_run_wallet": 100,
+    "cancel_open_orders_on_exit": false,
+    "forcebuy_enable": false,
+    "unfilledtimeout": {
+        "buy": 10,
+        "sell": 30
+    },
+    "bid_strategy": {
+        "price_side": "ask",
+        "ask_last_balance": 0.0,
+        "use_order_book": false,
+        "order_book_top": 2,
+        "check_depth_of_market": {
+            "enabled": false,
+            "bids_to_ask_delta": 1
+        }
+    },
+    "ask_strategy": {
+        "price_side": "bid",
+        "use_order_book": false,
+        "order_book_min": 1,
+        "order_book_max": 2,
+        "use_sell_signal": true,
+        "sell_profit_only": false,
+        "ignore_roi_if_buy_signal": true,
+        "ignore_buying_expired_candle_after": 600
+    },
+    "order_types": {
+        "buy": "market",
+        "sell": "market",
+        "forcesell": "market",
+        "emergencysell": "market",
+        "stoploss": "market",
+        "stoploss_on_exchange": false,
+        "stoploss_on_exchange_interval": 60
+    },
+    "exchange": {
+        "name": "binance",
+        "key": "",
+        "secret": "",
+        "ccxt_config": {
+            "enableRateLimit": true
+        },
+        "ccxt_async_config": {
+            "enableRateLimit": true,
+            "rateLimit": 200
+        },
+        "pair_whitelist": [
+            "BTC/USDT",
+            "ETH/USDT",
+            "CHZ/USDT",
+            "BNB/USDT",
+            "BUSD/USDT",
+            "ADA/USDT",
+            "DOGE/USDT",
+            "XRP/USDT",
+            "MATIC/USDT",
+            "DOT/USDT",
+            "VET/USDT",
+            "GTC/USDT",
+            "DATA/USDT",
+            "SOL/USDT",
+            "LINK/USDT",
+            "TFUEL/USDT",
+            "LTC/USDT",
+            "BAKE/USDT",
+            "EOS/USDT",
+            "KSM/USDT",
+            "ICP/USDT",
+            "THETA/USDT",
+            "ETC/USDT",
+            "FIL/USDT",
+            "USDC/USDT",
+            "SHIB/USDT",
+            "CAKE/USDT",
+            "EUR/USDT",
+            "ENJ/USDT",
+            "WRX/USDT",
+            "LUNA/USDT",
+            "STPT/USDT",
+            "TRX/USDT",
+            "COCOS/USDT",
+            "HARD/USDT",
+            "BCH/USDT",
+            "RUNE/USDT",
+            "AXS/USDT",
+            "ASR/USDT",
+            "SNX/USDT",
+            "ATM/USDT",
+            "SXP/USDT",
+            "CRV/USDT",
+            "BTCDOWN/USDT",
+            "XLM/USDT",
+            "CHR/USDT",
+            "GBP/USDT",
+            "UNI/USDT",
+            "ALGO/USDT",
+            "ALICE/USDT",
+            "ZIL/USDT",
+            "GTO/USDT",
+            "SLP/USDT",
+            "AAVE/USDT",
+            "STMX/USDT",
+            "OGN/USDT",
+            "ACM/USDT",
+            "TRU/USDT",
+            "BTT/USDT",
+            "BNBUP/USDT",
+            "BTCUP/USDT",
+            "WAVES/USDT",
+            "TORN/USDT",
+            "FTM/USDT",
+            "SUSHI/USDT",
+            "NEO/USDT",
+            "SUPER/USDT",
+            "WIN/USDT",
+            "AVAX/USDT",
+            "TLM/USDT",
+            "DENT/USDT",
+            "MANA/USDT",
+            "SAND/USDT",
+            "ZEC/USDT",
+            "ATOM/USDT",
+            "OMG/USDT",
+            "AUD/USDT",
+            "XMR/USDT",
+            "PSG/USDT",
+            "DEGO/USDT",
+            "BNBDOWN/USDT",
+        ],
+        "pair_blacklist": [
+            "BNB/.*"
+        ]
+    },
+    "pairlists": [
+        {
+            "method": "StaticPairList"
+        }
+    ],
+    "edge": {
+        "enabled": false,
+        "process_throttle_secs": 3600,
+        "calculate_since_number_of_days": 7,
+        "allowed_risk": 0.01,
+        "stoploss_range_min": -0.01,
+        "stoploss_range_max": -0.1,
+        "stoploss_range_step": -0.01,
+        "minimum_winrate": 0.6,
+        "minimum_expectancy": 0.2,
+        "min_trade_number": 10,
+        "max_trade_duration_minute": 1440,
+        "remove_pumps": false
+    },
+    "telegram": {
+        "enabled": true,
+        "token": "",
+        "chat_id": "",
+        "keyboard": [
+            [
+                "/daily",
+                "/profit",
+                "/balance"
+            ],
+            [
+                "/status",
+                "/status table",
+                "/performance"
+            ],
+            [
+                "/whitelist",
+                "/locks",
+                "/trades"
+            ],
+            [
+                "/start",
+                "/stop",
+                "/stopbuy",
+                "/help"
+            ]
+        ]
+    },
+    "api_server": {
+        "enabled": false,
+        "listen_ip_address": "127.0.0.1",
+        "listen_port": 8080,
+        "verbosity": "info",
+        "jwt_secret_key": "somethingrandom",
+        "CORS_origins": [],
+        "username": "",
+        "password": ""
+    },
+    "bot_name": "freqtrade",
+    "initial_state": "running",
+    "internals": {
+        "process_throttle_secs": 5
+    }
+}
