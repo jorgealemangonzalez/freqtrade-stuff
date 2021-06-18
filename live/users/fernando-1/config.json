@@ -1,6 +1,6 @@
 {
-    "strategy": "Miku_1m_5m_CSen444",
-    "dry_run": true,
+    "strategy": "Miku_1m_5m_CSen444v2_N_1_5",
+    "dry_run": false,
     "timeframe": "1m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
@@ -32,7 +32,7 @@
         "use_sell_signal": true,
         "sell_profit_only": false,
         "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600,
+        "ignore_buying_expired_candle_after": 600
     },
     "order_types": {
         "buy": "market",
@@ -55,11 +55,7 @@
         "pair_whitelist": [
         ],
         "pair_blacklist": [
-            "BNB/.*",
-            ".*UP/USDT",
-            ".*DOWN/USDT",
-            ".*BEAR/USDT",
-            ".*BULL/USDT"
+            "BNB/.*"
         ]
     },
     "pairlists": [
@@ -82,7 +78,7 @@
             "number_assets": 30,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
-        },
+        }
     ],
     "edge": {
         "enabled": false,
@@ -99,18 +95,18 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": false,
+        "enabled": true,
         "token": "",
         "chat_id": "",
         "keyboard": [
             ["/daily", "/profit", "/balance"],
             ["/status", "/status table", "/performance"],
             ["/whitelist", "/locks", "/trades"],
-            ["/start", "/stop", "/stopbuy", "/help"],
+            ["/start", "/stop", "/stopbuy", "/help"]
         ]
     },
     "api_server": {
-        "enabled": false,
+        "enabled": true,
         "listen_ip_address": "127.0.0.1",
         "listen_port": 8080,
         "verbosity": "info",
