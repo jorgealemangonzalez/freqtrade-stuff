@@ -1,7 +1,7 @@
 {
-    "strategy": "Miku_1m_5m_CSen444v2_N_1_5",
+    "strategy": "NostalgiaForInfinityV6",
     "dry_run": false,
-    "timeframe": "1m",
+    "timeframe": "5m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
@@ -32,7 +32,7 @@
         "use_sell_signal": true,
         "sell_profit_only": false,
         "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600
+        "ignore_buying_expired_candle_after": 600,
     },
     "order_types": {
         "buy": "market",
@@ -55,13 +55,17 @@
         "pair_whitelist": [
         ],
         "pair_blacklist": [
-            "BNB/.*"
+            "BNB/.*",
+            ".*UP/USDT",
+            ".*DOWN/USDT",
+            ".*BEAR/USDT",
+            ".*BULL/USDT"
         ]
     },
     "pairlists": [
         {
             "method": "VolumePairList",
-            "number_assets": 60,
+            "number_assets": 100,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
         },
@@ -75,10 +79,10 @@
         },
         {
             "method": "VolumePairList",
-            "number_assets": 30,
+            "number_assets": 80,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
-        }
+        },
     ],
     "edge": {
         "enabled": false,
@@ -93,6 +97,27 @@
         "min_trade_number": 10,
         "max_trade_duration_minute": 1440,
         "remove_pumps": false
+    },
+    "telegram": {
+        "enabled": false,
+        "token": "",
+        "chat_id": "",
+        "keyboard": [
+            ["/daily", "/profit", "/balance"],
+            ["/status", "/status table", "/performance"],
+            ["/whitelist", "/locks", "/trades"],
+            ["/start", "/stop", "/stopbuy", "/help"],
+        ]
+    },
+    "api_server": {
+        "enabled": false,
+        "listen_ip_address": "127.0.0.1",
+        "listen_port": 8080,
+        "verbosity": "info",
+        "jwt_secret_key": "somethingrandom",
+        "CORS_origins": [],
+        "username": "",
+        "password": ""
     },
     "bot_name": "freqtrade",
     "initial_state": "running",
