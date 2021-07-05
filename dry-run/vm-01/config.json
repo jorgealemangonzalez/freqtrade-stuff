@@ -1,5 +1,5 @@
 {
-    "strategy": "NostalgiaForInfinityV4",
+    "strategy": "NostalgiaForInfinityV6",
     "dry_run": true,
     "timeframe": "5m",
     "max_open_trades": 5,
@@ -65,7 +65,7 @@
     "pairlists": [
         {
             "method": "VolumePairList",
-            "number_assets": 60,
+            "number_assets": 100,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
         },
@@ -79,7 +79,7 @@
         },
         {
             "method": "VolumePairList",
-            "number_assets": 30,
+            "number_assets": 80,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
         },
