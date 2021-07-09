@@ -1,5 +1,5 @@
 {
-    "strategy": "NostalgiaForInfinityV6",
+    "strategy": "NostalgiaForInfinityV7",
     "dry_run": false,
     "timeframe": "5m",
     "max_open_trades": 5,
