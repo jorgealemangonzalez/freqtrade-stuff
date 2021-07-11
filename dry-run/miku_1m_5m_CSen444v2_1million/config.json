@@ -1,5 +1,5 @@
 {
-    "strategy": "Miku_1m_5m_CSen444v2_N_1_5",
+    "strategy": "Miku_1m_5m_CSen444v2_N_1_5_BTC20",
     "dry_run": true,
     "timeframe": "1m",
     "max_open_trades": 5,

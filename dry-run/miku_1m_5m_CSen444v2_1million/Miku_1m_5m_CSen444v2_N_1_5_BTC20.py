@@ -85,7 +85,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
+class Miku_1m_5m_CSen444v2_N_1_5_BTC20(IStrategy):
     # Optimal timeframe for the strategy
     timeframe = '1m'
 
@@ -118,9 +118,14 @@ class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
         informative_pairs = [(pair, self.informative_timeframe) for pair in pairs]
         if self.dp:
             informative_pairs += [(pair, "5m") for pair in pairs]
+            informative_pairs += [("BTC/USDT", "4h")]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+
+        dataframeBTC4h = self.dp.get_pair_dataframe(pair="BTC/USDT"], timeframe="4h")
+        dataframeBTC4h['BTC_EMA_20'] = ta.EMA(dataframeBTC4h, timeperiod=20)
+        dataframe = merge_informative_pair(dataframe, dataframeBTC4h, self.timeframe, "4h", ffill=True)
 
         dataframe5m = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe="5m")
 
@@ -136,6 +141,8 @@ class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
 
 
         dataframe['ichimoku_ok'] = (
+                                           (dataframe['close_4h'] > dataframe['BTC_EMA_20_4h']) &
+                                           
                                            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
                                            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
                                            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
