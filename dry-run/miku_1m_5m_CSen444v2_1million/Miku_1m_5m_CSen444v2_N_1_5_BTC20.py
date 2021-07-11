@@ -123,7 +123,7 @@ class Miku_1m_5m_CSen444v2_N_1_5_BTC20(IStrategy):
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-        dataframeBTC4h = self.dp.get_pair_dataframe(pair="BTC/USDT"], timeframe="4h")
+        dataframeBTC4h = self.dp.get_pair_dataframe(pair="BTC/USDT", timeframe="4h")
         dataframeBTC4h['BTC_EMA_20'] = ta.EMA(dataframeBTC4h, timeperiod=20)
         dataframe = merge_informative_pair(dataframe, dataframeBTC4h, self.timeframe, "4h", ffill=True)
 
