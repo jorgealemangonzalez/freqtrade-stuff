@@ -53,6 +53,7 @@
             "rateLimit": 200
         },
         "pair_whitelist": [
+            "*DOWN/*"
         ],
         "pair_blacklist": [
             "BNB/.*"
