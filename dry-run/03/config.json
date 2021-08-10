@@ -1,5 +1,5 @@
 {
-    "strategy": "NostalgiaForInfinityV7",
+    "strategy": "Semaphore_1776_v2_4h_ema20_UP_DOWN",
     "dry_run": true,
     "timeframe": "5m",
     "max_open_trades": 5,
@@ -32,7 +32,7 @@
         "use_sell_signal": true,
         "sell_profit_only": false,
         "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600,
+        "ignore_buying_expired_candle_after": 600
     },
     "order_types": {
         "buy": "market",
