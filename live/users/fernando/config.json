@@ -55,7 +55,11 @@
         "pair_whitelist": [
         ],
         "pair_blacklist": [
-            "BNB/.*"
+            "BNB/.*",
+            ".*UP/USDT",
+            ".*DOWN/USDT",
+            ".*BEAR/USDT",
+            ".*BULL/USDT"
         ]
     },
     "pairlists": [
