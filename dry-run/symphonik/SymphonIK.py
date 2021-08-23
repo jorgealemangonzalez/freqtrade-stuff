@@ -154,7 +154,7 @@ class SymphonIK(IStrategy):
 
         # Pares en 10m
 
-        dataframe5m = self.dp.get_pair_dataframe(
+        dataframe10m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="10m")
 
         dataframe10m['hma888'] = ftt.hull_moving_average(dataframe10m, 888)
@@ -171,6 +171,15 @@ class SymphonIK(IStrategy):
 
         dataframe = merge_informative_pair(
             dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
+
+        # Pares en 12h
+        dataframe12h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="12h")
+
+        # MACD
+        macd = ta.MACD(dataframe12h)
+        dataframe['macd'] = macd['macd']
+        dataframe['macdsignal'] = macd['macdsignal']
 
         # dataframe normal
 
@@ -205,7 +214,8 @@ class SymphonIK(IStrategy):
 
         dataframe.loc[
             (
-                dataframe['ichimoku_ok'] > 0
+                dataframe['ichimoku_ok'] > 0 &
+                (dataframe['macd'] > dataframe['macdsignal'])
             ), 'buy'] = 1
         return dataframe
 
