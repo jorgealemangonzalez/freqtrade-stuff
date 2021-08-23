@@ -167,7 +167,8 @@ class SymphonIK(IStrategy):
             pair=metadata['pair'], timeframe="12h")
 
         # MACD
-        macd = ta.MACD(dataframe12h)
+        macd = ta.MACD(dataframe12h, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
         dataframe['macd'] = macd['macd']
         dataframe['macdsignal'] = macd['macdsignal']
 
