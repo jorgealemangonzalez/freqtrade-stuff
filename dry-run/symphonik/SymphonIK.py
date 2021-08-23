@@ -162,16 +162,6 @@ class SymphonIK(IStrategy):
         dataframe = merge_informative_pair(
             dataframe, dataframe10m, self.timeframe, "10m", ffill=True)
 
-        # BTC/USDT 4h
-
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair="BTC/USDT", timeframe="4h")
-
-        dataframe4h['ema20'] = ta.EMA(dataframe4h, timeperiod=20)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
-
         # Pares en 12h
         dataframe12h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="12h")
@@ -180,6 +170,9 @@ class SymphonIK(IStrategy):
         macd = ta.MACD(dataframe12h)
         dataframe['macd'] = macd['macd']
         dataframe['macdsignal'] = macd['macdsignal']
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe12h, self.timeframe, "12h", ffill=True)
 
         # dataframe normal
 
