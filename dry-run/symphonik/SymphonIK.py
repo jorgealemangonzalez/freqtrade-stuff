@@ -122,6 +122,8 @@ class SymphonIK(IStrategy):
             informative_pairs += [(pair, "3m") for pair in pairs]
             informative_pairs += [(pair, "5m") for pair in pairs]
             informative_pairs += [(pair, "10m") for pair in pairs]
+            informative_pairs += [(pair, "12h") for pair in pairs]
+            informative_pairs += [("BTC/USDT", "4h")]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
