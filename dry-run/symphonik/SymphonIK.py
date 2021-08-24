@@ -114,18 +114,6 @@ class SymphonIK(IStrategy):
     # Stoploss:
     stoploss = -0.10
 
-    def informative_pairs(self):
-        pairs = self.dp.current_whitelist()
-        informative_pairs = [(pair, self.informative_timeframe)
-                             for pair in pairs]
-        if self.dp:
-            informative_pairs += [(pair, "3m") for pair in pairs]
-            informative_pairs += [(pair, "5m") for pair in pairs]
-            informative_pairs += [(pair, "10m") for pair in pairs]
-            informative_pairs += [(pair, "12h") for pair in pairs]
-            informative_pairs += [("BTC/USDT", "4h")]
-        return informative_pairs
-
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
        # Pares en 3m
