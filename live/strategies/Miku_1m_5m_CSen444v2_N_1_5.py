@@ -111,7 +111,7 @@ class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
     # in which case it would sell anyway.
 
     # Stoploss:
-    stoploss = -0.99
+    stoploss = -0.1
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
