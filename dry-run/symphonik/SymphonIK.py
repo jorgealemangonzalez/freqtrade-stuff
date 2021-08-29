@@ -108,6 +108,17 @@ class SymphonIK(IStrategy):
         "0": 10,
     }
 
+    plot_config = {
+        'main_plot': {},
+        'subplots': {
+            "MACD": {
+                'macd': {'color': 'blue'},
+                'macdsignal': {'color': 'orange'},
+            },
+
+        }
+    }
+
     # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
     # back into the trend at the next available opportunity, unless the trend has ended,
     # in which case it would sell anyway.
