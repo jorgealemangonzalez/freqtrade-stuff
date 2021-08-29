@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import technical.indicators as ftt
 from freqtrade.exchange import timeframe_to_minutes
+from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +135,9 @@ class SymphonIK(IStrategy):
         dataframe5m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="5m")
 
+        create_ichimoku(dataframe5m, conversion_line_period=20,
+                        displacement=88, base_line_periods=88, laggin_span=88)
+
         dataframe5m['hma444'] = ftt.hull_moving_average(dataframe5m, 444)
         dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
         dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
@@ -144,8 +148,7 @@ class SymphonIK(IStrategy):
 
         # Pares en 10m
 
-        dataframe10m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="10m")
+        dataframe10m = resample_to_interval(dataframe, 10)
 
         dataframe10m['hma888'] = ftt.hull_moving_average(dataframe10m, 888)
 
