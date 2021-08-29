@@ -109,13 +109,27 @@ class SymphonIK(IStrategy):
     }
 
     plot_config = {
-        'main_plot': {},
-        'subplots': {
-            "MACD": {
-                'macd': {'color': 'blue'},
-                'macdsignal': {'color': 'orange'},
+        'main_plot': {
+            'kijun_sen_633_3m': {},
+            'kijun_sen_20': {},
+            'hma888_10m': {},
+            'hma800_3m': {},
+            'ema440_5m': {},
+            'tenkan_sen_20': {},
+            'senkou_a_9': {},
+            'senkou_b_9': {},
+            'hma800_5m': {},
+            'ema88_5m': {},
+            'kijun_sen_20_5m': {},
+            'close': {
+                'color': 'black',
             },
-
+        },
+        'subplots': {
+            'MACD': {
+                'macd_12h': {'color': 'blue'},
+                'macdsignal_12h': {'color': 'orange'},
+            },
         }
     }
 
@@ -173,8 +187,8 @@ class SymphonIK(IStrategy):
         # MACD
         macd = ta.MACD(dataframe12h, fastperiod=12,
                        slowperiod=26, signalperiod=9)
-        dataframe['macd'] = macd['macd']
-        dataframe['macdsignal'] = macd['macdsignal']
+        dataframe12h['macd'] = macd['macd']
+        dataframe12h['macdsignal'] = macd['macdsignal']
 
         dataframe = merge_informative_pair(
             dataframe, dataframe12h, self.timeframe, "12h", ffill=True)
@@ -189,8 +203,8 @@ class SymphonIK(IStrategy):
         dataframe['ichimoku_ok'] = (
             (dataframe['kijun_sen_633_3m'] > dataframe['hma888_10m']) &
             (dataframe['kijun_sen_633_3m'] > dataframe['hma800_3m']) &
-            (dataframe['close'] > dataframe['ema440_5m']) &
             (dataframe['kijun_sen_20'] > dataframe['kijun_sen_633_3m']) &
+            (dataframe['close'] > dataframe['ema440_5m']) &
             (dataframe['tenkan_sen_20'] > dataframe['senkou_a_9']) &
             (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
         ).astype('int')
@@ -213,7 +227,7 @@ class SymphonIK(IStrategy):
         dataframe.loc[
             (
                 dataframe['ichimoku_ok'] > 0 &
-                (dataframe['macd'] > dataframe['macdsignal'])
+                (dataframe['macd_12h'] > dataframe['macdsignal_12h'])
             ), 'buy'] = 1
         return dataframe
 
