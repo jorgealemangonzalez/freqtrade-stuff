@@ -115,8 +115,8 @@ class SymphonIK(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd_12h': {'color': 'blue'},
-                'macdsignal_12h': {'color': 'orange'},
+                'macd_4h': {'color': 'blue'},
+                'macdsignal_4h': {'color': 'orange'},
             },
         }
     }
@@ -135,7 +135,7 @@ class SymphonIK(IStrategy):
         if self.dp:
             for pair in pairs:
                 informative_pairs += [(pair, "3m"), (pair, "5m"),
-                                      (pair, "15m"), (pair, "12h")]
+                                      (pair, "15m"), (pair, "4h")]
 
         return informative_pairs
 
@@ -179,18 +179,18 @@ class SymphonIK(IStrategy):
         dataframe = merge_informative_pair(
             dataframe, dataframe10m, self.timeframe, "10m", ffill=True)
 
-        # Pares en 12h
-        dataframe12h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="12h")
+        # Pares en 4h
+        dataframe4h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="4h")
 
         # MACD
-        macd = ta.MACD(dataframe12h, fastperiod=12,
+        macd = ta.MACD(dataframe4h, fastperiod=12,
                        slowperiod=26, signalperiod=9)
-        dataframe12h['macd'] = macd['macd']
-        dataframe12h['macdsignal'] = macd['macdsignal']
+        dataframe4h['macd'] = macd['macd']
+        dataframe4h['macdsignal'] = macd['macdsignal']
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe12h, self.timeframe, "12h", ffill=True)
+            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
         # dataframe normal
 
@@ -229,7 +229,7 @@ class SymphonIK(IStrategy):
         dataframe.loc[
             (
                 (dataframe['ichimoku_ok'] > 0) &
-                (dataframe['macd_12h'] > dataframe['macdsignal_12h'])
+                (dataframe['macd_4h'] > dataframe['macdsignal_4h'])
             ), 'buy'] = 1
 
         return dataframe
