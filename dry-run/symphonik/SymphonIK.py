@@ -62,18 +62,6 @@ logger = logging.getLogger(__name__)
 #         },
 #     ],
 
-def ssl_atr(dataframe, length=7):
-    df = dataframe.copy()
-    df['smaHigh'] = df['high'].rolling(length).mean() + df['atr']
-    df['smaLow'] = df['low'].rolling(length).mean() - df['atr']
-    df['hlv'] = np.where(df['close'] > df['smaHigh'], 1,
-                         np.where(df['close'] < df['smaLow'], -1, np.NAN))
-    df['hlv'] = df['hlv'].ffill()
-    df['sslDown'] = np.where(df['hlv'] < 0, df['smaHigh'], df['smaLow'])
-    df['sslUp'] = np.where(df['hlv'] < 0, df['smaLow'], df['smaHigh'])
-    return df['sslDown'], df['sslUp']
-
-
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
     ichimoku = ftt.ichimoku(dataframe,
                             conversion_line_period=conversion_line_period,
@@ -98,7 +86,7 @@ class SymphonIK(IStrategy):
     # shorter startup_candle_count your results will be unstable/invalid
     # for up to a week from the start of your backtest or dry/live run
     # (180 candles = 7.5 days)
-    startup_candle_count = 444  # MAXIMUM ICHIMOKU
+    startup_candle_count = 888  # for hma888
 
     # NOTE: this strat only uses candle information, so processing between
     # new candles is a waste of resources as nothing will change
@@ -127,8 +115,8 @@ class SymphonIK(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd_12h': {'color': 'blue'},
-                'macdsignal_12h': {'color': 'orange'},
+                'macd_4h': {'color': 'blue'},
+                'macdsignal_4h': {'color': 'orange'},
             },
         }
     }
@@ -139,6 +127,17 @@ class SymphonIK(IStrategy):
 
     # Stoploss:
     stoploss = -0.10
+
+    def informative_pairs(self):
+        pairs = self.dp.current_whitelist()
+        informative_pairs = [(pair, self.informative_timeframe)
+                             for pair in pairs]
+        if self.dp:
+            for pair in pairs:
+                informative_pairs += [(pair, "3m"), (pair, "5m"),
+                                      (pair, "15m"), (pair, "4h")]
+
+        return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
@@ -180,18 +179,18 @@ class SymphonIK(IStrategy):
         dataframe = merge_informative_pair(
             dataframe, dataframe10m, self.timeframe, "10m", ffill=True)
 
-        # Pares en 12h
-        dataframe12h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="12h")
+        # Pares en 4h
+        dataframe4h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="4h")
 
         # MACD
-        macd = ta.MACD(dataframe12h, fastperiod=12,
+        macd = ta.MACD(dataframe4h, fastperiod=12,
                        slowperiod=26, signalperiod=9)
-        dataframe12h['macd'] = macd['macd']
-        dataframe12h['macdsignal'] = macd['macdsignal']
+        dataframe4h['macd'] = macd['macd']
+        dataframe4h['macdsignal'] = macd['macdsignal']
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe12h, self.timeframe, "12h", ffill=True)
+            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
         # dataframe normal
 
@@ -217,6 +216,9 @@ class SymphonIK(IStrategy):
         return dataframe
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        if not self.dp:
+            # Don't do anything if DataProvider is not available.
+            return dataframe
 
         dataframe = self.slow_tf_indicators(dataframe, metadata)
 
@@ -226,9 +228,10 @@ class SymphonIK(IStrategy):
 
         dataframe.loc[
             (
-                dataframe['ichimoku_ok'] > 0 &
-                (dataframe['macd_12h'] > dataframe['macdsignal_12h'])
+                (dataframe['ichimoku_ok'] > 0) &
+                (dataframe['macd_4h'] > dataframe['macdsignal_4h'])
             ), 'buy'] = 1
+
         return dataframe
 
     def populate_sell_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
