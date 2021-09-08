@@ -105,7 +105,7 @@
             ["/daily", "/profit", "/balance"],
             ["/status", "/status table", "/performance"],
             ["/whitelist", "/locks", "/trades"],
-            ["/start", "/stop", "/stopbuy", "/help"],
+            ["/start", "/stop", "/stopbuy", "/help"]
         ]
     },
     "api_server": {
