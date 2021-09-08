@@ -53,8 +53,6 @@
             "rateLimit": 200
         },
         "pair_whitelist": [
-            "ADA/USDT",
-            "LINK/USDT"
         ],
         "pair_blacklist": [
             "BNB/.*",
