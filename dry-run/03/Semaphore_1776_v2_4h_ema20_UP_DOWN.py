@@ -40,11 +40,12 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
+    # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
-    timeframe = '1m'
+    timeframe = '5m'
 
     # generate signals from the 5m timeframe
-    informative_timeframe = '1m'
+    informative_timeframe = '15m'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -72,15 +73,24 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         informative_pairs = [(pair, self.informative_timeframe)
                              for pair in pairs]
         if self.dp:
-            informative_pairs += [(pair, "5m") for pair in pairs]
+            informative_pairs += [(pair, "15m") for pair in pairs]
             informative_pairs += [("BTC/USDT", "4h")]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
+        # Pares en 5m
+
         dataframe5m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="5m")
-
+            # Ichimoku 380_5m equivale al 633_3m
+        create_ichimoku(dataframe5m, conversion_line_period=380,
+                        displacement=633, base_line_periods=380, laggin_span=266)
+            # Ickimoku 12_5m equivale al 20_3m
+        create_ichimoku(dataframe5m, conversion_line_period=12,
+                        displacement=88, base_line_periods=53, laggin_span=53)
+        create_ichimoku(dataframe5m, conversion_line_period=20,
+                        displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe5m, conversion_line_period=178,
                         displacement=880, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe5m, conversion_line_period=355,
@@ -88,12 +98,23 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         create_ichimoku(dataframe5m, conversion_line_period=1776,
                         displacement=880, base_line_periods=880, laggin_span=880)
 
-        dataframe5m['hma444'] = ftt.hull_moving_average(dataframe5m, 444)
-        dataframe5m['ema355'] = ta.EMA(dataframe5m, timeperiod=355)
-        dataframe5m['ema20'] = ta.EMA(dataframe5m, timeperiod=20)
+            # Hma 480_5m equivale a la hma800_3m
+        dataframe5m['hma480'] = ftt.hull_moving_average(dataframe5m, 480)
+        dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
+        dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
+        dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
+
+        # Pares en 15m
+        dataframe15m = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="15m")
+
+        dataframe15m['hma592'] = ftt.hull_moving_average(dataframe15m, 592)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
 
         # BTC/USDT 4h
 
@@ -109,6 +130,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
+        create_ichimoku(dataframe, conversion_line_period=380,
+                        displacement=633, base_line_periods=380, laggin_span=266)
+        create_ichimoku(dataframe, conversion_line_period=12,
+                        displacement=88, base_line_periods=53, laggin_span=53)
         create_ichimoku(dataframe, conversion_line_period=9,
                         displacement=26, base_line_periods=26, laggin_span=52)
         create_ichimoku(dataframe, conversion_line_period=444,
@@ -118,57 +143,25 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=40,
                         displacement=88, base_line_periods=176, laggin_span=176)
 
-        if ('DOWN' in metadata['pair']): # ETHDOWN/USDT
-            dataframe['btc_in_correct_trend'] = (
-                (dataframe['close_4h'] < dataframe['ema20_4h'])
-            ).astype('int')
-        else:   # ETH/USDT
-            dataframe['btc_in_correct_trend'] = (
-                (dataframe['close_4h'] > dataframe['ema20_4h'])
-            ).astype('int')
+        dataframe['hma480'] = ftt.hull_moving_average(dataframe, 480)
+        dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
+        dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
+        dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
 
-        dataframe['ichimoku_okA'] = (
-            (dataframe['kijun_sen_1776_5m'] >= dataframe['tenkan_sen_1776_5m'])
-        ).astype('int')
+        # Start Trading
 
-        dataframe['ichimoku_okB'] = (
-            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m'])
-        ).astype('int')
-
-        dataframe['ichimoku_ok1'] = (
-            (dataframe['kijun_sen_178_5m'] >= dataframe['tenkan_sen_178_5m']) &
-            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
-            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
-            (dataframe['kijun_sen_20'] > dataframe['hma444_5m']) &
-            (dataframe['kijun_sen_20'] > dataframe['ema355_5m']) &
-            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
-            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
-            (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
-            (dataframe['tenkan_sen_9']
-             >= dataframe['kijun_sen_9'])
-        ).astype('int')
-
-        dataframe['ichimoku_ok2'] = (
-            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
-            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
-            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
-            (dataframe['kijun_sen_20'] > dataframe['hma444_5m']) &
-            (dataframe['kijun_sen_20'] > dataframe['ema355_5m']) &
-            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
-            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
-            (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
-            (dataframe['tenkan_sen_9']
-             >= dataframe['kijun_sen_9'])
-        ).astype('int')
+        dataframe['ichimoku_ok'] = (
+            (dataframe['kijun_sen_380'] > dataframe['hma592_15m']) &
+            (dataframe['kijun_sen_380'] > dataframe['hma480']) &
+            (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
+            (dataframe['close'] > dataframe['ema440']) &
+            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
+            (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
+        ).astype('int')        
 
         dataframe['trending_over'] = (
-            (dataframe['senkou_b_444'] > dataframe['close'])
-        ).astype('int')
-
-        dataframe['trending_over2'] = (
-            (dataframe['senkou_b_100'] > dataframe['close'])
+            (dataframe['hma800'] > dataframe['ema88']) &
+            (dataframe['kijun_sen_20'] > dataframe['close'])
         ).astype('int')
 
         return dataframe
@@ -183,29 +176,13 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['btc_in_correct_trend'] > 0)
-                & (dataframe['ichimoku_okA'] > 0)
-                & (dataframe['ichimoku_ok2'] > 0)
-                & (dataframe['trending_over'] == 0)
-            )
-            |
-            (
-                (dataframe['btc_in_correct_trend'] > 0)
-                & (dataframe['ichimoku_okA'] == 0)
-                & (dataframe['ichimoku_ok1'] > 0)
-                & (dataframe['trending_over'] == 0)
+                (dataframe['ichimoku_ok'] > 0)
             ), 'buy'] = 1
         return dataframe
 
     def populate_sell_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         dataframe.loc[
             (
-                (dataframe['ichimoku_okA'] > 0)
-                & (dataframe['trending_over'] > 0)
-            )
-            |
-            (
-                (dataframe['ichimoku_okA'] < 0)
-                & (dataframe['trending_over2'] > 0)
+                (dataframe['trending_over'] > 0)
             ), 'sell'] = 1
         return dataframe
