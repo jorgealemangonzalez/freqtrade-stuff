@@ -45,7 +45,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     timeframe = '5m'
 
     # generate signals from the 5m timeframe
-    informative_timeframe = '15m'
+    informative_timeframe = '1h'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -73,7 +73,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         informative_pairs = [(pair, self.informative_timeframe)
                              for pair in pairs]
         if self.dp:
-            informative_pairs += [(pair, "15m") for pair in pairs]
+            informative_pairs += [(pair, "1h") for pair in pairs]
             informative_pairs += [("BTC/USDT", "4h")]
         return informative_pairs
 
@@ -107,14 +107,14 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe = merge_informative_pair(
             dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
 
-        # Pares en 15m
-        dataframe15m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="15m")
+        # Pares en 1h
+        dataframe1h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1h")
 
-        dataframe15m['hma592'] = ftt.hull_moving_average(dataframe15m, 592)
+        dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
+            dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
 
         # BTC/USDT 4h
 
@@ -151,7 +151,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         # Start Trading
 
         dataframe['ichimoku_ok'] = (
-            (dataframe['kijun_sen_380'] > dataframe['hma592_15m']) &
+            (dataframe['kijun_sen_380'] > dataframe['hma148_1h']) &
             (dataframe['kijun_sen_380'] > dataframe['hma480']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
             (dataframe['close'] > dataframe['ema440']) &
