@@ -112,6 +112,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             pair=metadata['pair'], timeframe="1h")
 
         dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
+        dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
+        dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
@@ -152,7 +154,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe['ichimoku_ok'] = (
             (dataframe['kijun_sen_380'] > dataframe['hma148_1h']) &
-            (dataframe['kijun_sen_380'] > dataframe['hma480']) &
+            (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
             (dataframe['close'] > dataframe['ema440']) &
             (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
@@ -160,7 +162,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         ).astype('int')        
 
         dataframe['trending_over'] = (
-            (dataframe['hma800'] > dataframe['ema88']) &
+            (dataframe['hma67_1h'] > dataframe['ema88']) &
             (dataframe['kijun_sen_20'] > dataframe['close'])
         ).astype('int')
 
