@@ -75,6 +75,26 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
+def weigted_sum(window_data, weights, averager):
+    weighted_sum_window = weights*window_data
+    weighted_sum = np.sum(weighted_sum_window)
+    result =  weighted_sum / averager
+    return result
+
+
+def wma(series, window):
+    weights = np.arange(1, window+1)
+    averager = window * (window +1) / 2
+    return series.rolling(window).apply(lambda x: weigted_sum(x, weights, averager))
+
+
+def hma(series, window):
+    series = series['close']
+    ma = (2 * wma(series, int(round(window / 2)))) - \
+        wma(series, window)
+    return wma(ma, int(round(np.sqrt(window))))
+
+
 class SymphonIK(IStrategy):
     # Optimal timeframe for the strategy
     timeframe = '1m'
@@ -149,7 +169,7 @@ class SymphonIK(IStrategy):
         create_ichimoku(dataframe3m, conversion_line_period=633,
                         displacement=633, base_line_periods=444, laggin_span=444)
 
-        dataframe3m['hma800'] = ftt.hull_moving_average(dataframe3m, 800)
+        dataframe3m['hma800'] = hma(dataframe3m, 800)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe3m, self.timeframe, "3m", ffill=True)
@@ -162,8 +182,8 @@ class SymphonIK(IStrategy):
         create_ichimoku(dataframe5m, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
 
-        dataframe5m['hma444'] = ftt.hull_moving_average(dataframe5m, 444)
-        dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
+        dataframe5m['hma444'] = hma(dataframe5m, 444)
+        dataframe5m['hma800'] = hma(dataframe5m, 800)
         dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
         dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
 
@@ -174,7 +194,7 @@ class SymphonIK(IStrategy):
 
         dataframe10m = resample_to_interval(dataframe, 10)
 
-        dataframe10m['hma888'] = ftt.hull_moving_average(dataframe10m, 888)
+        dataframe10m['hma888'] = hma(dataframe10m, 888)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe10m, self.timeframe, "10m", ffill=True)
