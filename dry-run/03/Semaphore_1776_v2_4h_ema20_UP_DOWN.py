@@ -126,6 +126,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma115'] = ftt.hull_moving_average(dataframe1h, 115)
         dataframe1h['hma125'] = ftt.hull_moving_average(dataframe1h, 125)
         dataframe1h['hma130'] = ftt.hull_moving_average(dataframe1h, 130)
+        dataframe1h['hma108'] = ftt.hull_moving_average(dataframe1h, 108)
+        dataframe1h['hma107'] = ftt.hull_moving_average(dataframe1h, 107)
+        dataframe1h['hma106'] = ftt.hull_moving_average(dataframe1h, 106)
+        dataframe1h['hma127'] = ftt.hull_moving_average(dataframe1h, 127)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
