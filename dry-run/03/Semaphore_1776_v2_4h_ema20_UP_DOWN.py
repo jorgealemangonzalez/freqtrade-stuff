@@ -114,6 +114,18 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+        dataframe1h['hma100'] = ftt.hull_moving_average(dataframe1h, 100)
+        dataframe1h['hma120'] = ftt.hull_moving_average(dataframe1h, 120)
+        dataframe1h['hma80'] = ftt.hull_moving_average(dataframe1h, 80)
+        dataframe1h['hma75'] = ftt.hull_moving_average(dataframe1h, 75)
+        dataframe1h['hma85'] = ftt.hull_moving_average(dataframe1h, 85)
+        dataframe1h['hma90'] = ftt.hull_moving_average(dataframe1h, 90)
+        dataframe1h['hma95'] = ftt.hull_moving_average(dataframe1h, 95)
+        dataframe1h['hma105'] = ftt.hull_moving_average(dataframe1h, 105)
+        dataframe1h['hma110'] = ftt.hull_moving_average(dataframe1h, 110)
+        dataframe1h['hma115'] = ftt.hull_moving_average(dataframe1h, 115)
+        dataframe1h['hma125'] = ftt.hull_moving_average(dataframe1h, 125)
+        dataframe1h['hma130'] = ftt.hull_moving_average(dataframe1h, 130)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
