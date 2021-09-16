@@ -37,6 +37,25 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'kijun_sen_{conversion_line_period}'] = ichimoku['kijun_sen']
     dataframe[f'senkou_a_{conversion_line_period}'] = ichimoku['senkou_span_a']
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
+    
+    def weigted_sum(window_data, weights, averager):
+    weighted_sum_window = weights*window_data
+    weighted_sum = np.sum(weighted_sum_window)
+    result =  weighted_sum / averager
+    return result
+
+
+    def wma(series, window):
+    weights = np.arange(1, window+1)
+    averager = window * (window +1) / 2
+    return series.rolling(window).apply(lambda x: weigted_sum(x, weights, averager))
+
+
+    def hma(series, window):
+    series = series['close']
+    ma = (2 * wma(series, int(round(window / 2)))) - \
+        wma(series, window)
+    return wma(ma, int(round(np.sqrt(window))))
 
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
@@ -99,8 +118,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                         displacement=880, base_line_periods=880, laggin_span=880)
 
             # Hma 480_5m equivale a la hma800_3m
-        dataframe5m['hma480'] = ftt.hull_moving_average(dataframe5m, 480)
-        dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
+        dataframe5m['hma480'] = hma(dataframe5m, 480)
+        dataframe5m['hma800'] = hma(dataframe5m, 800)
         dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
         dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
 
@@ -111,25 +130,9 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1h")
 
-        dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
-        dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
-        dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
-        dataframe1h['hma100'] = ftt.hull_moving_average(dataframe1h, 100)
-        dataframe1h['hma120'] = ftt.hull_moving_average(dataframe1h, 120)
-        dataframe1h['hma80'] = ftt.hull_moving_average(dataframe1h, 80)
-        dataframe1h['hma75'] = ftt.hull_moving_average(dataframe1h, 75)
-        dataframe1h['hma85'] = ftt.hull_moving_average(dataframe1h, 85)
-        dataframe1h['hma90'] = ftt.hull_moving_average(dataframe1h, 90)
-        dataframe1h['hma95'] = ftt.hull_moving_average(dataframe1h, 95)
-        dataframe1h['hma105'] = ftt.hull_moving_average(dataframe1h, 105)
-        dataframe1h['hma110'] = ftt.hull_moving_average(dataframe1h, 110)
-        dataframe1h['hma115'] = ftt.hull_moving_average(dataframe1h, 115)
-        dataframe1h['hma125'] = ftt.hull_moving_average(dataframe1h, 125)
-        dataframe1h['hma130'] = ftt.hull_moving_average(dataframe1h, 130)
-        dataframe1h['hma108'] = ftt.hull_moving_average(dataframe1h, 108)
-        dataframe1h['hma107'] = ftt.hull_moving_average(dataframe1h, 107)
-        dataframe1h['hma106'] = ftt.hull_moving_average(dataframe1h, 106)
-        dataframe1h['hma127'] = ftt.hull_moving_average(dataframe1h, 127)
+        dataframe1h['hma148'] = hma(dataframe1h, 148)
+        dataframe1h['hma67'] = hma(dataframe1h, 67)
+        dataframe1h['hma40'] = hma(dataframe1h, 40)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
@@ -161,8 +164,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=40,
                         displacement=88, base_line_periods=176, laggin_span=176)
 
-        dataframe['hma480'] = ftt.hull_moving_average(dataframe, 480)
-        dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
+        dataframe['hma480'] = hma(dataframe, 480)
+        dataframe['hma800'] = hma(dataframe, 800)
         dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
         dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
 
