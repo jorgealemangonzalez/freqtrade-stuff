@@ -26,6 +26,26 @@ def ssl_atr(dataframe, length=7):
     return df['sslDown'], df['sslUp']
 
 
+def weigted_sum(window_data, weights, averager):
+    weighted_sum_window = weights*window_data
+    weighted_sum = np.sum(weighted_sum_window)
+    result =  weighted_sum / averager
+    return result
+
+
+def wma(series, window):
+    weights = np.arange(1, window+1)
+    averager = window * (window +1) / 2
+    return series.rolling(window).apply(lambda x: weigted_sum(x, weights, averager))
+
+
+def hma(series, window):
+    series = series['close']
+    ma = (2 * wma(series, int(round(window / 2)))) - \
+        wma(series, window)
+    return wma(ma, int(round(np.sqrt(window))))
+
+
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
     ichimoku = ftt.ichimoku(dataframe,
                             conversion_line_period=conversion_line_period,
@@ -73,47 +93,42 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         informative_pairs = [(pair, self.informative_timeframe)
                              for pair in pairs]
         if self.dp:
-            informative_pairs += [(pair, "1h") for pair in pairs]
+            for pair in pairs:
+                informative_pairs += [(pair, "1h"), (pair, "4h")]
             informative_pairs += [("BTC/USDT", "4h")]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
         # Pares en 5m
-
-        dataframe5m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="5m")
             # Ichimoku 380_5m equivale al 633_3m
-        create_ichimoku(dataframe5m, conversion_line_period=380,
+        create_ichimoku(dataframe, conversion_line_period=380,
                         displacement=633, base_line_periods=380, laggin_span=266)
             # Ickimoku 12_5m equivale al 20_3m
-        create_ichimoku(dataframe5m, conversion_line_period=12,
+        create_ichimoku(dataframe, conversion_line_period=12,
                         displacement=88, base_line_periods=53, laggin_span=53)
-        create_ichimoku(dataframe5m, conversion_line_period=20,
+        create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe5m, conversion_line_period=178,
+        create_ichimoku(dataframe, conversion_line_period=178,
                         displacement=880, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe5m, conversion_line_period=355,
+        create_ichimoku(dataframe, conversion_line_period=355,
                         displacement=880, base_line_periods=175, laggin_span=175)
-        create_ichimoku(dataframe5m, conversion_line_period=1776,
+        create_ichimoku(dataframe, conversion_line_period=1776,
                         displacement=880, base_line_periods=880, laggin_span=880)
 
             # Hma 480_5m equivale a la hma800_3m
-        dataframe5m['hma480'] = ftt.hull_moving_average(dataframe5m, 480)
-        dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
-        dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
-        dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
+        dataframe['hma480'] = hma(dataframe, 480)
+        dataframe['hma800'] = hma(dataframe, 800)
+        dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
+        dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
 
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1h")
 
-        dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
-        dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
-        dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+        dataframe1h['hma148'] = hma(dataframe1h, 148)
+        dataframe1h['hma67'] = hma(dataframe1h, 67)
+        dataframe1h['hma40'] = hma(dataframe1h, 40)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
@@ -145,8 +160,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=40,
                         displacement=88, base_line_periods=176, laggin_span=176)
 
-        dataframe['hma480'] = ftt.hull_moving_average(dataframe, 480)
-        dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
+        dataframe['hma480'] = hma(dataframe, 480)
+        dataframe['hma800'] = hma(dataframe, 800)
         dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
         dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
 
