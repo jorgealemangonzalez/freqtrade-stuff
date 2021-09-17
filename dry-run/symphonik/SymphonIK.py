@@ -154,8 +154,7 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "3m"), (pair, "5m"),
-                                      (pair, "10m"), (pair, "4h")]
+                informative_pairs += [(pair, "3m"), (pair, "5m"), (pair, "4h")]
 
         return informative_pairs
 
@@ -187,12 +186,13 @@ class SymphonIK(IStrategy):
         dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
         dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
 
+
+        dataframe10m = resample_to_interval(dataframe5m, 10)
+        
         dataframe = merge_informative_pair(
             dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
 
         # Pares en 10m
-
-        dataframe10m = resample_to_interval(dataframe, 10)
 
         dataframe10m['hma888'] = hma(dataframe10m, 888)
 
