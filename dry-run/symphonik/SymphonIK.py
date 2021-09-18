@@ -120,7 +120,7 @@ class SymphonIK(IStrategy):
         'main_plot': {
             'kijun_sen_380': {},
             'kijun_sen_12': {},
-            'hma582_15m': {},
+            'hma592_15m': {},
             'hma480': {},
             'ema440': {},
             'tenkan_sen_12': {},
