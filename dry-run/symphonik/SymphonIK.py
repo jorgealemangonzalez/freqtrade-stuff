@@ -126,7 +126,7 @@ class SymphonIK(IStrategy):
             'tenkan_sen_12': {},
             'senkou_a_6': {},
             'senkou_b_6': {},
-            'hma800': {},
+            'hma266_15m': {},
             'ema88': {},
             'kijun_sen_20': {},
             'close': {
@@ -135,8 +135,8 @@ class SymphonIK(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd_4h': {'color': 'blue'},
-                'macdsignal_4h': {'color': 'orange'},
+                'macd_2h': {'color': 'blue'},
+                'macdsignal_2h': {'color': 'orange'},
             },
         }
     }
@@ -154,7 +154,7 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "15m"), (pair, "4h")]
+                informative_pairs += [(pair, "15m"), (pair, "2h")]
 
         return informative_pairs
 
@@ -166,25 +166,24 @@ class SymphonIK(IStrategy):
             pair=metadata['pair'], timeframe="15m")
 
         dataframe15m['hma592'] = hma(dataframe15m, 592)
-        dataframe15m['hma800'] = hma(dataframe15m, 800)
-        dataframe15m['ema440'] = ta.EMA(dataframe15m, timeperiod=440)
+        dataframe15m['hma266'] = hma(dataframe15m, 266)
         dataframe15m['ema88'] = ta.EMA(dataframe15m, timeperiod=88)
         
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
 
-        # Pares en 4h
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="4h")
+        # Pares en 2h
+        dataframe2h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="2h")
 
         # MACD
-        macd = ta.MACD(dataframe4h, fastperiod=12,
+        macd = ta.MACD(dataframe2h, fastperiod=12,
                        slowperiod=26, signalperiod=9)
-        dataframe4h['macd'] = macd['macd']
-        dataframe4h['macdsignal'] = macd['macdsignal']
+        dataframe2h['macd'] = macd['macd']
+        dataframe2h['macdsignal'] = macd['macdsignal']
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
+            dataframe, dataframe2h, self.timeframe, "2h", ffill=True)
 
         # dataframe normal
 
@@ -214,7 +213,7 @@ class SymphonIK(IStrategy):
         ).astype('int')
 
         dataframe['trending_over'] = (
-            (dataframe['hma800'] > dataframe['ema88']) &
+            (dataframe['hma266_15m'] > dataframe['ema88']) &
             (dataframe['kijun_sen_20'] > dataframe['close'])
         ).astype('int')
 
@@ -234,7 +233,7 @@ class SymphonIK(IStrategy):
         dataframe.loc[
             (
                 (dataframe['ichimoku_ok'] > 0) &
-                (dataframe['macd_4h'] > dataframe['macdsignal_4h'])
+                (dataframe['macd_2h'] > dataframe['macdsignal_2h'])
             ), 'buy'] = 1
 
         return dataframe
