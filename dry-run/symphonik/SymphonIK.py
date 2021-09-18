@@ -97,10 +97,10 @@ def hma(series, window):
 
 class SymphonIK(IStrategy):
     # Optimal timeframe for the strategy
-    timeframe = '1m'
+    timeframe = '5m'
 
     # generate signals from the 5m timeframe
-    informative_timeframe = '1m'
+    informative_timeframe = '15m'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -118,17 +118,17 @@ class SymphonIK(IStrategy):
 
     plot_config = {
         'main_plot': {
-            'kijun_sen_633_3m': {},
+            'kijun_sen_380': {},
+            'kijun_sen_12': {},
+            'hma582_15m': {},
+            'hma480': {},
+            'ema440': {},
+            'tenkan_sen_12': {},
+            'senkou_a_6': {},
+            'senkou_b_6': {},
+            'hma800': {},
+            'ema88': {},
             'kijun_sen_20': {},
-            'hma888_10m': {},
-            'hma800_3m': {},
-            'ema440_5m': {},
-            'tenkan_sen_20': {},
-            'senkou_a_9': {},
-            'senkou_b_9': {},
-            'hma800_5m': {},
-            'ema88_5m': {},
-            'kijun_sen_20_5m': {},
             'close': {
                 'color': 'black',
             },
@@ -154,50 +154,27 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "3m"), (pair, "5m"), (pair, "4h")]
+                informative_pairs += [(pair, "15m"), (pair, "4h")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-       # Pares en 3m
+        # Pares en 15m
 
-        dataframe3m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="3m")
+        dataframe15m = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="15m")
 
-        create_ichimoku(dataframe3m, conversion_line_period=633,
-                        displacement=633, base_line_periods=444, laggin_span=444)
-
-        dataframe3m['hma800'] = hma(dataframe3m, 800)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe3m, self.timeframe, "3m", ffill=True)
-
-        # Pares en 5m
-
-        dataframe5m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="5m")
-
-        create_ichimoku(dataframe5m, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
-
-        dataframe5m['hma444'] = hma(dataframe5m, 444)
-        dataframe5m['hma800'] = hma(dataframe5m, 800)
-        dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
-        dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
+        dataframe15m['hma592'] = hma(dataframe15m, 592)
+        dataframe15m['hma800'] = hma(dataframe15m, 800)
+        dataframe15m['ema440'] = ta.EMA(dataframe15m, timeperiod=440)
+        dataframe15m['ema88'] = ta.EMA(dataframe15m, timeperiod=88)
 
 
         dataframe10m = resample_to_interval(dataframe5m, 10)
         
         dataframe = merge_informative_pair(
-            dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
-
-        # Pares en 10m
-
-        dataframe10m['hma888'] = hma(dataframe10m, 888)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe10m, self.timeframe, "10m", ffill=True)
+            dataframe, dataframe5m, self.timeframe, "15m", ffill=True)
 
         # Pares en 4h
         dataframe4h = self.dp.get_pair_dataframe(
@@ -214,23 +191,34 @@ class SymphonIK(IStrategy):
 
         # dataframe normal
 
+        create_ichimoku(dataframe, conversion_line_period=380,
+                        displacement=633, base_line_periods=380, laggin_span=266)
+        create_ichimoku(dataframe, conversion_line_period=12,
+                        displacement=88, base_line_periods=53, laggin_span=53)
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=9,
                         displacement=26, base_line_periods=26, laggin_span=52)
+        create_ichimoku(dataframe, conversion_line_period=6,
+                        displacement=26, base_line_periods=16, laggin_span=31)
+
+        dataframe['hma480'] = hma(dataframe, 480)
+        dataframe['hma800'] = hma(dataframe, 800)
+        dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
+        dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
 
         dataframe['ichimoku_ok'] = (
-            (dataframe['kijun_sen_633_3m'] > dataframe['hma888_10m']) &
-            (dataframe['kijun_sen_633_3m'] > dataframe['hma800_3m']) &
-            (dataframe['kijun_sen_20'] > dataframe['kijun_sen_633_3m']) &
-            (dataframe['close'] > dataframe['ema440_5m']) &
-            (dataframe['tenkan_sen_20'] > dataframe['senkou_a_9']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
+            (dataframe['kijun_sen_380'] > dataframe['hma592_15m']) &
+            (dataframe['kijun_sen_380'] > dataframe['hma480']) &
+            (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
+            (dataframe['close'] > dataframe['ema440']) &
+            (dataframe['tenkan_sen_12'] > dataframe['senkou_a_6']) &
+            (dataframe['senkou_a_6'] > dataframe['senkou_b_6'])
         ).astype('int')
 
         dataframe['trending_over'] = (
-            (dataframe['hma800_5m'] > dataframe['ema88_5m']) &
-            (dataframe['kijun_sen_20_5m'] > dataframe['close'])
+            (dataframe['hma800'] > dataframe['ema88']) &
+            (dataframe['kijun_sen_20'] > dataframe['close'])
         ).astype('int')
 
         return dataframe
