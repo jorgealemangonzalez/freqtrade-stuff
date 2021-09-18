@@ -154,7 +154,7 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-            informative_pairs += [(pair, "15m")]
+            informative_pairs += [(pair, "15m"), (pair, "2h")]
 
         return informative_pairs
 
