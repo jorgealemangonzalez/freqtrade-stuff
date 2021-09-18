@@ -1,7 +1,7 @@
 {
     "strategy": "Semaphore_1776_v2_4h_ema20_UP_DOWN",
     "dry_run": true,
-    "timeframe": "5m",
+    "timeframe": "1m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
