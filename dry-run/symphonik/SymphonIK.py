@@ -154,7 +154,7 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-            informative_pairs += [(pair, "15m"), (pair, "2h")]
+                informative_pairs += [(pair, "15m"), (pair, "2h")]
 
         return informative_pairs
 
@@ -232,7 +232,8 @@ class SymphonIK(IStrategy):
 
         dataframe.loc[
             (
-               dataframe['ichimoku_ok'] > 0
+                (dataframe['ichimoku_ok'] > 0) &
+                (dataframe['macd_2h'] > dataframe['macdsignal_2h'])
             ), 'buy'] = 1
 
         return dataframe
@@ -240,6 +241,6 @@ class SymphonIK(IStrategy):
     def populate_sell_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         dataframe.loc[
             (
-               dataframe['trending_over'] > 0
+                dataframe['trending_over'] > 0
             ), 'sell'] = 1
         return dataframe
