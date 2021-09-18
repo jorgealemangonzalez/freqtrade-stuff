@@ -169,12 +169,9 @@ class SymphonIK(IStrategy):
         dataframe15m['hma800'] = hma(dataframe15m, 800)
         dataframe15m['ema440'] = ta.EMA(dataframe15m, timeperiod=440)
         dataframe15m['ema88'] = ta.EMA(dataframe15m, timeperiod=88)
-
-
-        dataframe10m = resample_to_interval(dataframe5m, 10)
         
         dataframe = merge_informative_pair(
-            dataframe, dataframe5m, self.timeframe, "15m", ffill=True)
+            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
 
         # Pares en 4h
         dataframe4h = self.dp.get_pair_dataframe(
