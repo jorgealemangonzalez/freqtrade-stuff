@@ -100,7 +100,7 @@ class SymphonIK(IStrategy):
     timeframe = '5m'
 
     # generate signals from the 5m timeframe
-    informative_timeframe = '15m'
+    informative_timeframe = '1h'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -120,13 +120,13 @@ class SymphonIK(IStrategy):
         'main_plot': {
             'kijun_sen_380': {},
             'kijun_sen_12': {},
-            'hma592_15m': {},
-            'hma480': {},
+            'hma148_1h': {},
+            'hma40_1h': {},
             'ema440': {},
             'tenkan_sen_12': {},
             'senkou_a_6': {},
             'senkou_b_6': {},
-            'hma266_15m': {},
+            'hma67_1h': {},
             'ema88': {},
             'kijun_sen_20': {},
             'close': {
@@ -154,23 +154,23 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "15m"), (pair, "2h")]
+                informative_pairs += [(pair, "1h"), (pair, "2h")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-        # Pares en 15m
-
-        dataframe15m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="15m")
-
-        dataframe15m['hma592'] = hma(dataframe15m, 592)
-        dataframe15m['hma266'] = hma(dataframe15m, 266)
-        dataframe15m['ema88'] = ta.EMA(dataframe15m, timeperiod=88)
         
+                # Pares en 1h
+        dataframe1h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1h")
+
+        dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
+        dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
+        dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+
         dataframe = merge_informative_pair(
-            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
+            dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
 
         # Pares en 2h
         dataframe2h = self.dp.get_pair_dataframe(
@@ -204,8 +204,8 @@ class SymphonIK(IStrategy):
         dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
 
         dataframe['ichimoku_ok'] = (
-            (dataframe['kijun_sen_380'] > dataframe['hma592_15m']) &
-            (dataframe['kijun_sen_380'] > dataframe['hma480']) &
+            (dataframe['kijun_sen_380'] > dataframe['hma148_1h']) &
+            (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
             (dataframe['close'] > dataframe['ema440']) &
             (dataframe['tenkan_sen_12'] > dataframe['senkou_a_6']) &
@@ -213,7 +213,7 @@ class SymphonIK(IStrategy):
         ).astype('int')
 
         dataframe['trending_over'] = (
-            (dataframe['hma266_15m'] > dataframe['ema88']) &
+            (dataframe['hma67_1h'] > dataframe['ema88']) &
             (dataframe['kijun_sen_20'] > dataframe['close'])
         ).astype('int')
 
