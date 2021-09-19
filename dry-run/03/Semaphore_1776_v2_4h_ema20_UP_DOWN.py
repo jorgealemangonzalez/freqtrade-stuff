@@ -108,22 +108,13 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe = merge_informative_pair(
             dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
 
-        # Pares en 15m
-        dataframe15m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="15m")
-
-        dataframe15m['hma592'] = ftt.hull_moving_average(dataframe15m, 592)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
-
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1h")
 
-        dataframe1h['hma148'] = hma(dataframe1h, 148)
-        dataframe1h['hma67'] = hma(dataframe1h, 67)
-        dataframe1h['hma40'] = hma(dataframe1h, 40)
+        dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
+        dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
+        dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
