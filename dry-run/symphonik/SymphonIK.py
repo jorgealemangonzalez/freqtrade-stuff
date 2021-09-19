@@ -232,8 +232,7 @@ class SymphonIK(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['ichimoku_ok'] > 0) &
-                (dataframe['macd_2h'] > dataframe['macdsignal_2h'])
+                (dataframe['ichimoku_ok'] > 0)
             ), 'buy'] = 1
 
         return dataframe
