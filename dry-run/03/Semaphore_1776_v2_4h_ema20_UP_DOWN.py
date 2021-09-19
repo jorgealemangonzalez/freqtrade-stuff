@@ -150,6 +150,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
         dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
         dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
+        dataframe['zlma100'] = ftt.zlma(dataframe, 100)
 
         # Start Trading
 
