@@ -159,11 +159,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         # Start Trading
 
-        dataframe['macd_ok'] = (
-            (dataframe['macd_1h'] > dataframe['macdsignal_1h'])
-        ).astype('int')
-
         dataframe['ichimoku_ok'] = (
+            (dataframe['macd_1h'] > dataframe['macdsignal_1h']) &
             (dataframe['kijun_sen_380'] > dataframe['hma148_1h']) &
             (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
@@ -189,8 +186,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['ichimoku_ok'] > 0) &
-                (dataframe)['macd_ok'] > 0)
+                (dataframe['ichimoku_ok'] > 0)
             ), 'buy'] = 1
         return dataframe
 
