@@ -67,7 +67,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     # in which case it would sell anyway.
 
     # Stoploss:
-    stoploss = -0.99
+    stoploss = -0.10
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
@@ -84,10 +84,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe5m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="5m")
-        # Ichimoku 380_5m equivale al 633_3m
+            # Ichimoku 380_5m equivale al 633_3m
         create_ichimoku(dataframe5m, conversion_line_period=380,
                         displacement=633, base_line_periods=380, laggin_span=266)
-        # Ickimoku 12_5m equivale al 20_3m
+            # Ickimoku 12_5m equivale al 20_3m
         create_ichimoku(dataframe5m, conversion_line_period=12,
                         displacement=88, base_line_periods=53, laggin_span=53)
         create_ichimoku(dataframe5m, conversion_line_period=20,
@@ -99,7 +99,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         create_ichimoku(dataframe5m, conversion_line_period=1776,
                         displacement=880, base_line_periods=880, laggin_span=880)
 
-        # Hma 480_5m equivale a la hma800_3m
+            # Hma 480_5m equivale a la hma800_3m
         dataframe5m['hma480'] = ftt.hull_moving_average(dataframe5m, 480)
         dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
         dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
@@ -115,6 +115,12 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+
+            # MACD
+        macd = ta.MACD(dataframe1h, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe1h['macd'] = macd['macd']
+        dataframe1h['macdsignal'] = macd['macdsignal']
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
@@ -153,6 +159,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         # Start Trading
 
+        dataframe['macd_ok'] = (
+            (dataframe['macd_1h'] > dataframe['macdsignal_1h'])
+        ).astype('int')
+
         dataframe['ichimoku_ok'] = (
             (dataframe['kijun_sen_380'] > dataframe['hma148_1h']) &
             (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
@@ -160,7 +170,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             (dataframe['close'] > dataframe['ema440']) &
             (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
             (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
-        ).astype('int')
+        ).astype('int')        
 
         dataframe['trending_over'] = (
             (dataframe['hma67_1h'] > dataframe['ema88']) &
@@ -179,7 +189,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['ichimoku_ok'] > 0)
+                (dataframe['ichimoku_ok'] > 0) &
+                (dataframe)['macd_ok'] > 0)
             ), 'buy'] = 1
         return dataframe
 
