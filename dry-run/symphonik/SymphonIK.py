@@ -61,6 +61,7 @@ class SymphonIK(IStrategy):
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
+        if self.dp:
         informative_pairs += [(pair, '1h'), (pair, '2h')] for pair in pairs
         return informative_pairs
 
