@@ -61,7 +61,7 @@ class SymphonIK(IStrategy):
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
-        informative_pairs += [(pair, '1h'), (pair, '2h') for pair in pairs]
+        informative_pairs += [(pair, '1h'), (pair, '2h')] for pair in pairs
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
