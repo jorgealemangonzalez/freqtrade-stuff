@@ -29,7 +29,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class SymphonIK(IStrategy):
+class SymphonIK_v6(IStrategy):
     # La Estrategia es: SymphonIK_v6 (con MACD)
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
@@ -61,10 +61,19 @@ class SymphonIK(IStrategy):
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
-        informative_pairs = [(pair, '1h') for pair in pairs]
+        informative_pairs = [(pair, '1h'), (pair, '2h') for pair in pairs]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+
+        # Pares en 2h
+        dataframe2h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="2h")
+
+        dataframe2h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe2h, self.timeframe, "2h", ffill=True)
 
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
@@ -109,8 +118,8 @@ class SymphonIK(IStrategy):
             (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
             (dataframe['close'] > dataframe['ema440']) &
-            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
+            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_6']) &
+            (dataframe['senkou_a_6'] > dataframe['senkou_b_6'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
