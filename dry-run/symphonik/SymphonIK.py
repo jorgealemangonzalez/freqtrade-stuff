@@ -63,7 +63,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         informative_pairs = [(pair, self.informative_timeframe)
                              for pair in pairs]
         if self.dp:
-            informative_pairs += [(pair, "1h") for pair in pairs]
+            informative_pairs += [(pair, "1h")]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
