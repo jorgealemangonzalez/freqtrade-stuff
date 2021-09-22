@@ -112,8 +112,8 @@ class SymphonIK(IStrategy):
             (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
             (dataframe['close'] > dataframe['ema440']) &
-            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_6']) &
-            (dataframe['senkou_a_6'] > dataframe['senkou_b_6'])
+            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
+            (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
