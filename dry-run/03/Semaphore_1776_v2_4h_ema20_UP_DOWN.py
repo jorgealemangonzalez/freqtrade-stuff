@@ -28,7 +28,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
-    # La Estrategia es: SymphonIK_v3 (Adaptada a 30m)
+    # La Estrategia es: SymphonIK_v5 (con MACD)
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
     timeframe = '5m'
