@@ -29,7 +29,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
+class SymphonIK(IStrategy):
     # La Estrategia es: SymphonIK_v6 (con MACD)
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
