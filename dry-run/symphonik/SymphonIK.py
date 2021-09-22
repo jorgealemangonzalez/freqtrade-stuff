@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import technical.indicators as ftt
 from freqtrade.exchange import timeframe_to_minutes
+from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
