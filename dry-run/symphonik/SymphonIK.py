@@ -10,20 +10,10 @@ import pandas as pd
 import numpy as np
 import technical.indicators as ftt
 from freqtrade.exchange import timeframe_to_minutes
+from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
-
-def ssl_atr(dataframe, length=7):
-    df = dataframe.copy()
-    df['smaHigh'] = df['high'].rolling(length).mean() + df['atr']
-    df['smaLow'] = df['low'].rolling(length).mean() - df['atr']
-    df['hlv'] = np.where(df['close'] > df['smaHigh'], 1,
-                         np.where(df['close'] < df['smaLow'], -1, np.NAN))
-    df['hlv'] = df['hlv'].ffill()
-    df['sslDown'] = np.where(df['hlv'] < 0, df['smaHigh'], df['smaLow'])
-    df['sslUp'] = np.where(df['hlv'] < 0, df['smaLow'], df['smaHigh'])
-    return df['sslDown'], df['sslUp']
 
 
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
@@ -39,13 +29,13 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class SymphonIK(IStrategy):
-    # La Estrategia es: SymphonIK_v3 (Adaptada a 30m)
+class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
+    # La Estrategia es: SymphonIK_v6 (con MACD)
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
     timeframe = '5m'
 
-    # generate signals from the 5m timeframe
+    # generate signals from the 1h timeframe
     informative_timeframe = '1h'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
@@ -67,7 +57,7 @@ class SymphonIK(IStrategy):
     # in which case it would sell anyway.
 
     # Stoploss:
-    stoploss = -0.99
+    stoploss = -0.10
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
@@ -75,38 +65,9 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             informative_pairs += [(pair, "1h") for pair in pairs]
-            informative_pairs += [("BTC/USDT", "4h")]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-
-        # Pares en 5m
-
-        dataframe5m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="5m")
-        # Ichimoku 380_5m equivale al 633_3m
-        create_ichimoku(dataframe5m, conversion_line_period=380,
-                        displacement=633, base_line_periods=380, laggin_span=266)
-        # Ickimoku 12_5m equivale al 20_3m
-        create_ichimoku(dataframe5m, conversion_line_period=12,
-                        displacement=88, base_line_periods=53, laggin_span=53)
-        create_ichimoku(dataframe5m, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe5m, conversion_line_period=178,
-                        displacement=880, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe5m, conversion_line_period=355,
-                        displacement=880, base_line_periods=175, laggin_span=175)
-        create_ichimoku(dataframe5m, conversion_line_period=1776,
-                        displacement=880, base_line_periods=880, laggin_span=880)
-
-        # Hma 480_5m equivale a la hma800_3m
-        dataframe5m['hma480'] = ftt.hull_moving_average(dataframe5m, 480)
-        dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
-        dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
-        dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
 
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
@@ -116,18 +77,14 @@ class SymphonIK(IStrategy):
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
 
+            # MACD
+        macd = ta.MACD(dataframe1h, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe1h['macd'] = macd['macd']
+        dataframe1h['macdsignal'] = macd['macdsignal']
+
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
-
-        # BTC/USDT 4h
-
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair="BTC/USDT", timeframe="4h")
-
-        dataframe4h['ema20'] = ta.EMA(dataframe4h, timeperiod=20)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
         # dataframe normal
 
@@ -139,12 +96,8 @@ class SymphonIK(IStrategy):
                         displacement=88, base_line_periods=53, laggin_span=53)
         create_ichimoku(dataframe, conversion_line_period=9,
                         displacement=26, base_line_periods=26, laggin_span=52)
-        create_ichimoku(dataframe, conversion_line_period=444,
-                        displacement=444, base_line_periods=444, laggin_span=444)
-        create_ichimoku(dataframe, conversion_line_period=100,
-                        displacement=88, base_line_periods=440, laggin_span=440)
-        create_ichimoku(dataframe, conversion_line_period=40,
-                        displacement=88, base_line_periods=176, laggin_span=176)
+        create_ichimoku(dataframe, conversion_line_period=6,
+                        displacement=26, base_line_periods=16, laggin_span=31)
 
         dataframe['hma480'] = ftt.hull_moving_average(dataframe, 480)
         dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
@@ -154,13 +107,14 @@ class SymphonIK(IStrategy):
         # Start Trading
 
         dataframe['ichimoku_ok'] = (
+            (dataframe['macd_1h'] > dataframe['macdsignal_1h']) &
             (dataframe['kijun_sen_380'] > dataframe['hma148_1h']) &
             (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
             (dataframe['close'] > dataframe['ema440']) &
-            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
-        ).astype('int')
+            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_6']) &
+            (dataframe['senkou_a_6'] > dataframe['senkou_b_6'])
+        ).astype('int')        
 
         dataframe['trending_over'] = (
             (dataframe['hma67_1h'] > dataframe['ema88']) &
