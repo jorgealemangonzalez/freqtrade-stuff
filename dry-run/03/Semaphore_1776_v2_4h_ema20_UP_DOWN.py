@@ -14,18 +14,6 @@ from freqtrade.exchange import timeframe_to_minutes
 logger = logging.getLogger(__name__)
 
 
-def ssl_atr(dataframe, length=7):
-    df = dataframe.copy()
-    df['smaHigh'] = df['high'].rolling(length).mean() + df['atr']
-    df['smaLow'] = df['low'].rolling(length).mean() - df['atr']
-    df['hlv'] = np.where(df['close'] > df['smaHigh'], 1,
-                         np.where(df['close'] < df['smaLow'], -1, np.NAN))
-    df['hlv'] = df['hlv'].ffill()
-    df['sslDown'] = np.where(df['hlv'] < 0, df['smaHigh'], df['smaLow'])
-    df['sslUp'] = np.where(df['hlv'] < 0, df['smaLow'], df['smaHigh'])
-    return df['sslDown'], df['sslUp']
-
-
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
     ichimoku = ftt.ichimoku(dataframe,
                             conversion_line_period=conversion_line_period,
