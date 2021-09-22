@@ -71,7 +71,7 @@ class SymphonIK_v6(IStrategy):
         dataframe2h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="2h")
 
-        dataframe2h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+        dataframe2h['hma40'] = ftt.hull_moving_average(dataframe2h, 40)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe2h, self.timeframe, "2h", ffill=True)
