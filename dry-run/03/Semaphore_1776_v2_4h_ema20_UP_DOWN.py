@@ -10,8 +10,10 @@ import pandas as pd
 import numpy as np
 import technical.indicators as ftt
 from freqtrade.exchange import timeframe_to_minutes
+from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
+
 
 
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
@@ -28,12 +30,12 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
-    # La Estrategia es: SymphonIK_v5 (con MACD)
+    # La Estrategia es: SymphonIK_v6 (con MACD)... Probando Pivot Points
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
     timeframe = '5m'
 
-    # generate signals from the 5m timeframe
+    # generate signals from the 1h timeframe
     informative_timeframe = '1h'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
@@ -59,42 +61,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
-        informative_pairs = [(pair, self.informative_timeframe)
-                             for pair in pairs]
-        if self.dp:
-            informative_pairs += [(pair, "1h") for pair in pairs]
-            informative_pairs += [("BTC/USDT", "4h")]
+        informative_pairs = [(pair, '1h') for pair in pairs]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-
-        # Pares en 5m
-
-        dataframe5m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="5m")
-            # Ichimoku 380_5m equivale al 633_3m
-        create_ichimoku(dataframe5m, conversion_line_period=380,
-                        displacement=633, base_line_periods=380, laggin_span=266)
-            # Ickimoku 12_5m equivale al 20_3m
-        create_ichimoku(dataframe5m, conversion_line_period=12,
-                        displacement=88, base_line_periods=53, laggin_span=53)
-        create_ichimoku(dataframe5m, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe5m, conversion_line_period=178,
-                        displacement=880, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe5m, conversion_line_period=355,
-                        displacement=880, base_line_periods=175, laggin_span=175)
-        create_ichimoku(dataframe5m, conversion_line_period=1776,
-                        displacement=880, base_line_periods=880, laggin_span=880)
-
-            # Hma 480_5m equivale a la hma800_3m
-        dataframe5m['hma480'] = ftt.hull_moving_average(dataframe5m, 480)
-        dataframe5m['hma800'] = ftt.hull_moving_average(dataframe5m, 800)
-        dataframe5m['ema440'] = ta.EMA(dataframe5m, timeperiod=440)
-        dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
 
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
@@ -104,6 +74,57 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
 
+    def pivots_points(dataframe: pd.DataFrame, timeperiod=60, levels=1) -> pd.DataFrame:
+    """
+    Pivots Points
+    https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
+    Formula:
+    Pivot = (Previous High + Previous Low + Previous Close)/3
+    Resistance #1 = (2 x Pivot) - Previous Low
+    Support #1 = (2 x Pivot) - Previous High
+    Resistance #2 = (Pivot - Support #1) + Resistance #1
+    Support #2 = Pivot - (Resistance #1 - Support #1)
+    Resistance #3 = (Pivot - Support #2) + Resistance #2
+    Support #3 = Pivot - (Resistance #2 - Support #2)
+    ...
+    :param dataframe:
+    :param timeperiod: Period to compare (in ticker)
+    :param levels: Num of support/resistance desired
+    :return: dataframe
+    """
+
+    data = {}
+
+    low = qtpylib.rolling_mean(
+        series=pd.Series(index=dataframe.index, data=dataframe["low"]), window=timeperiod
+    )
+
+    high = qtpylib.rolling_mean(
+        series=pd.Series(index=dataframe.index, data=dataframe["high"]), window=timeperiod
+    )
+
+    # Pivot
+    data["pivot"] = qtpylib.rolling_mean(series=qtpylib.typical_price(dataframe), window=timeperiod)
+
+    # Resistance #1
+    data["r1"] = (2 * data["pivot"]) - low
+
+    # Resistance #2
+    data["s1"] = (2 * data["pivot"]) - high
+
+    # Calculate Resistances and Supports >1
+    for i in range(2, levels + 1):
+        prev_support = data["s" + str(i - 1)]
+        prev_resistance = data["r" + str(i - 1)]
+
+        # Resitance
+        data["r" + str(i)] = (data["pivot"] - prev_support) + prev_resistance
+
+        # Support
+        data["s" + str(i)] = data["pivot"] - (prev_resistance - prev_support)
+
+    return pd.DataFrame(index=dataframe.index, data=data)
+
             # MACD
         macd = ta.MACD(dataframe1h, fastperiod=12,
                        slowperiod=26, signalperiod=9)
@@ -112,16 +133,6 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
-
-        # BTC/USDT 4h
-
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair="BTC/USDT", timeframe="4h")
-
-        dataframe4h['ema20'] = ta.EMA(dataframe4h, timeperiod=20)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
         # dataframe normal
 
@@ -133,12 +144,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                         displacement=88, base_line_periods=53, laggin_span=53)
         create_ichimoku(dataframe, conversion_line_period=9,
                         displacement=26, base_line_periods=26, laggin_span=52)
-        create_ichimoku(dataframe, conversion_line_period=444,
-                        displacement=444, base_line_periods=444, laggin_span=444)
-        create_ichimoku(dataframe, conversion_line_period=100,
-                        displacement=88, base_line_periods=440, laggin_span=440)
-        create_ichimoku(dataframe, conversion_line_period=40,
-                        displacement=88, base_line_periods=176, laggin_span=176)
+        create_ichimoku(dataframe, conversion_line_period=6,
+                        displacement=26, base_line_periods=16, laggin_span=31)
 
         dataframe['hma480'] = ftt.hull_moving_average(dataframe, 480)
         dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
@@ -153,8 +160,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
             (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
             (dataframe['close'] > dataframe['ema440']) &
-            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
+            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_6']) &
+            (dataframe['senkou_a_6'] > dataframe['senkou_b_6'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
