@@ -29,8 +29,8 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
-    # La Estrategia es: SymphonIK_v6 (con MACD)... Probando Pivot Points
+class SymphonIK_Semaphore_v6(IStrategy):
+    # La Estrategia es: SymphonIK_Semaphore_v6 (con MACD)... Probando Informtive Pairs
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
     timeframe = '5m'
@@ -61,10 +61,24 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
-        informative_pairs = [(pair, '1h') for pair in pairs]
+        informative_pairs = [(pair, self.informative_timeframe)
+                             for pair in pairs]
+        if self.dp:
+            for pair in pairs:
+                informative_pairs += [(pair, "1h"), (pair, "2h")]
+
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+
+        # Pares en 2h
+        dataframe2h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="2h")
+
+        dataframe2h['hma40'] = ftt.hull_moving_average(dataframe2h, 40)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe2h, self.timeframe, "2h", ffill=True)
 
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
@@ -73,6 +87,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+
 
             # MACD
         macd = ta.MACD(dataframe1h, fastperiod=12,
