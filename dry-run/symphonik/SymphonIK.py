@@ -60,6 +60,9 @@ class SymphonIK(IStrategy):
     stoploss = -0.10
     
     def informative_pairs(self):
+        pairs = self.dp.current_whitelist()
+        informative_pairs = [(pair, self.informative_timeframe)
+                             for pair in pairs]
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
