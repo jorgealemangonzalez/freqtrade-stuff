@@ -66,6 +66,15 @@ class SymphonIK(IStrategy):
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        
+        # Pares en 4h
+        dataframe4h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="4h")
+
+        dataframe4h['hma40'] = ftt.hull_moving_average(dataframe4h, 40)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
