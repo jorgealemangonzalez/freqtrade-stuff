@@ -146,10 +146,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['macdsignal'] = macd['macdsignal']
         
             # Pivots Points
-        pivots_points(dataframe1h)
-        dataframe1h['pivot'] = pivots_points['pivot']
-        dataframe1h['r1'] = pivots_points['r1']
-        dataframe1h['s1'] = pivots_points['s1']
+        pp = pivots_points(dataframe1h)
+        dataframe1h['pivot'] = pp['pivot']
+        dataframe1h['r1'] = pp['r1']
+        dataframe1h['s1'] = pp['s1']
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
