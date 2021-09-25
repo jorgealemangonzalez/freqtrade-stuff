@@ -1,19 +1,17 @@
 # --- Do not remove these libs ---
 from freqtrade.strategy import IStrategy, merge_informative_pair
-from pandas import DataFrame
+from pandas import DataFrame, Series
 import talib.abstract as ta
 import logging
 import freqtrade.vendor.qtpylib.indicators as qtpylib
 
 # --------------------------------
 import math
-
 import pandas as pd
 import numpy as np
 import technical.indicators as ftt
 from freqtrade.exchange import timeframe_to_minutes
 from technical.util import resample_to_interval, resampled_merge
-
 from numpy.core.records import ndarray
 
 logger = logging.getLogger(__name__)
@@ -219,8 +217,6 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
         
-        # HMA
-        dataframe1h['tv_hma148'] = tv_hma(dataframe1h, 148)
 
             # MACD
         macd = ta.MACD(dataframe1h, fastperiod=12,
@@ -248,6 +244,9 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
         dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
         dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
+        
+        # HMA
+        dataframe['tvhma148'] = tv_hma
 
         # Start Trading
 
