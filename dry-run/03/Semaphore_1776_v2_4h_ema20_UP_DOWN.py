@@ -216,7 +216,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
         
         # HMA
-        dataframe1h['hmatv148'] = ta.tv_hma(dataframe1h, 148)
+        dataframe1h['tv_hma148'] = tv_hma(dataframe1h, 148)
 
             # MACD
         macd = ta.MACD(dataframe1h, fastperiod=12,
