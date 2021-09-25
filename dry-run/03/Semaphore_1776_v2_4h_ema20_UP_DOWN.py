@@ -119,11 +119,24 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1h"), (pair, "4h")]
+                informative_pairs += [(pair, "1h"), (pair, "4h"), (pair, "1d")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        
+        # Pares en "1d"
+        dataframe1d = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1d")
+
+        # Pivots Points
+        pp = pivots_points(dataframe1d)
+        dataframe1d['pivot'] = pp['pivot']
+        dataframe1d['r1'] = pp['r1']
+        dataframe1d['s1'] = pp['s1']
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
         # Pares en 4h
         dataframe4h = self.dp.get_pair_dataframe(
