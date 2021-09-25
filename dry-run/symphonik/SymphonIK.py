@@ -104,6 +104,33 @@ class SymphonIK(IStrategy):
     # Stoploss:
     stoploss = -0.10
 
+    plot_config = {
+        'main_plot': {
+            'senkou_b_9': {},
+            'senkou_a_9': {},
+            'tenkan_sen_12': {},
+            'kijun_sen_12': {},
+            'kijun_sen_20': {},
+            'kijun_sen_380': {},
+            'hma480': {},
+            'hma800': {},
+            'ema440': {},
+            'ema88': {},
+            'hma148_1h': {},
+            'hma67_1h': {},
+            'hma40_1h': {},
+            'close': {
+                'color': 'black',
+            },
+        },
+        'subplots': {
+            'MACD': {
+                'macd_1h': {'color': 'blue'},
+                'macdsignal_1h': {'color': 'orange'},
+            },
+        }
+    }
+
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
         informative_pairs = [(pair, '1h') for pair in pairs]
@@ -130,16 +157,14 @@ class SymphonIK(IStrategy):
 
         # dataframe normal
 
-        create_ichimoku(dataframe, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=380,
                         displacement=633, base_line_periods=380, laggin_span=266)
+        create_ichimoku(dataframe, conversion_line_period=20,
+                        displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=12,
                         displacement=88, base_line_periods=53, laggin_span=53)
         create_ichimoku(dataframe, conversion_line_period=9,
                         displacement=26, base_line_periods=26, laggin_span=52)
-        create_ichimoku(dataframe, conversion_line_period=6,
-                        displacement=26, base_line_periods=16, laggin_span=31)
 
         dataframe['hma480'] = tv_hma(dataframe, 480)
         dataframe['hma800'] = tv_hma(dataframe, 800)
