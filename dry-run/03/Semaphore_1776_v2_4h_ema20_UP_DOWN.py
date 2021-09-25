@@ -1,6 +1,6 @@
 # --- Do not remove these libs ---
 from freqtrade.strategy import IStrategy, merge_informative_pair
-from pandas import DataFrame, Series
+from pandas import DataFrame
 import talib.abstract as ta
 import logging
 import freqtrade.vendor.qtpylib.indicators as qtpylib
@@ -15,8 +15,6 @@ from freqtrade.exchange import timeframe_to_minutes
 from technical.util import resample_to_interval, resampled_merge
 
 from numpy.core.records import ndarray
-
-from .overlap_studies import sma, vwma, zema
 
 logger = logging.getLogger(__name__)
 
