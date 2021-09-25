@@ -119,7 +119,6 @@ class SymphonIK(IStrategy):
             'hma148_1h': {},
             'hma67_1h': {},
             'hma40_1h': {},
-            'hma40_4h': {},
             'close': {
                 'color': 'black',
             },
@@ -136,18 +135,10 @@ class SymphonIK(IStrategy):
         pairs = self.dp.current_whitelist()
         informative_pairs = [(pair, self.informative_timeframe)
                              for pair in pairs]
+
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-
-        # Pares en 4h
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="4h")
-
-        dataframe4h['hma40'] = ftt.hull_moving_average(dataframe4h, 40)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
         # Pares en 1h
         dataframe1h = self.dp.get_pair_dataframe(
