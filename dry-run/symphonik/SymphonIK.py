@@ -6,6 +6,7 @@ import logging
 import freqtrade.vendor.qtpylib.indicators as qtpylib
 
 # --------------------------------
+import math
 import pandas as pd
 import numpy as np
 import technical.indicators as ftt
@@ -13,7 +14,6 @@ from freqtrade.exchange import timeframe_to_minutes
 from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
-
 
 
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
@@ -27,6 +27,51 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'kijun_sen_{conversion_line_period}'] = ichimoku['kijun_sen']
     dataframe[f'senkou_a_{conversion_line_period}'] = ichimoku['senkou_span_a']
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
+
+
+def tv_wma(dataframe: DataFrame, length: int = 9, field="close") -> DataFrame:
+    """
+    Source: Tradingview "Moving Average Weighted"
+    Pinescript Author: Unknown
+    Args :
+        dataframe : Pandas Dataframe
+        length : WMA length
+        field : Field to use for the calculation
+    Returns :
+        dataframe : Pandas DataFrame with new columns 'tv_wma'
+    """
+
+    norm = 0
+    sum = 0
+
+    for i in range(1, length - 1):
+        weight = (length - i) * length
+        norm = norm + weight
+        sum = sum + dataframe[field].shift(i) * weight
+
+    return sum / norm
+
+
+def tv_hma(dataframe: DataFrame, length: int = 9, field="close") -> DataFrame:
+    """
+    Source: Tradingview "Hull Moving Average"
+    Pinescript Author: Unknown
+    Args :
+        dataframe : Pandas Dataframe
+        length : HMA length
+        field : Field to use for the calculation
+    Returns :
+        dataframe : Pandas DataFrame with new columns 'tv_hma'
+    """
+    dataframe["h"] = (
+        2 * tv_wma(dataframe, math.floor(length / 2), field)) - tv_wma(dataframe, length, field=field)
+
+    wma = tv_wma(
+        dataframe, math.floor(math.sqrt(length)), field="h")
+
+    dataframe.drop("h", inplace=True, axis=1)
+
+    return wma
 
 
 class SymphonIK(IStrategy):
@@ -58,7 +103,35 @@ class SymphonIK(IStrategy):
 
     # Stoploss:
     stoploss = -0.10
-    
+
+    plot_config = {
+        'main_plot': {
+            'senkou_b_9': {},
+            'senkou_a_9': {},
+            'tenkan_sen_12': {},
+            'kijun_sen_12': {},
+            'kijun_sen_20': {},
+            'kijun_sen_380': {},
+            'hma480': {},
+            'hma800': {},
+            'ema440': {},
+            'ema88': {},
+            'hma148_1h': {},
+            'hma67_1h': {},
+            'hma40_1h': {},
+            'hma40_4h': {},
+            'close': {
+                'color': 'black',
+            },
+        },
+        'subplots': {
+            'MACD': {
+                'macd_1h': {'color': 'blue'},
+                'macdsignal_1h': {'color': 'orange'},
+            },
+        }
+    }
+
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
         informative_pairs = [(pair, self.informative_timeframe)
@@ -66,7 +139,7 @@ class SymphonIK(IStrategy):
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        
+
         # Pares en 4h
         dataframe4h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="4h")
@@ -80,11 +153,11 @@ class SymphonIK(IStrategy):
         dataframe1h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1h")
 
-        dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
-        dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
-        dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+        dataframe1h['hma148'] = tv_hma(dataframe1h, 148)
+        dataframe1h['hma67'] = tv_hma(dataframe1h, 67)
+        dataframe1h['hma40'] = tv_hma(dataframe1h, 40)
 
-            # MACD
+        # MACD
         macd = ta.MACD(dataframe1h, fastperiod=12,
                        slowperiod=26, signalperiod=9)
         dataframe1h['macd'] = macd['macd']
@@ -95,19 +168,17 @@ class SymphonIK(IStrategy):
 
         # dataframe normal
 
-        create_ichimoku(dataframe, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=380,
                         displacement=633, base_line_periods=380, laggin_span=266)
+        create_ichimoku(dataframe, conversion_line_period=20,
+                        displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=12,
                         displacement=88, base_line_periods=53, laggin_span=53)
         create_ichimoku(dataframe, conversion_line_period=9,
                         displacement=26, base_line_periods=26, laggin_span=52)
-        create_ichimoku(dataframe, conversion_line_period=6,
-                        displacement=26, base_line_periods=16, laggin_span=31)
 
-        dataframe['hma480'] = ftt.hull_moving_average(dataframe, 480)
-        dataframe['hma800'] = ftt.hull_moving_average(dataframe, 800)
+        dataframe['hma480'] = tv_hma(dataframe, 480)
+        dataframe['hma800'] = tv_hma(dataframe, 800)
         dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
         dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
 
@@ -121,7 +192,7 @@ class SymphonIK(IStrategy):
             (dataframe['close'] > dataframe['ema440']) &
             (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
             (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
-        ).astype('int')        
+        ).astype('int')
 
         dataframe['trending_over'] = (
             (dataframe['hma67_1h'] > dataframe['ema88']) &
