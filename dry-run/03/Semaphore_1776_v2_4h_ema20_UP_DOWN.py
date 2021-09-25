@@ -105,6 +105,20 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     minimal_roi = {
         "0": 10,
     }
+    
+    plot_config = {
+        'main_plot': {
+            'pivot_1d': {},
+            'r1_1d': {},
+            's1_1d': {},
+        },
+        'subplots': {
+            'MACD': {
+                'macd_1h': {'color': 'blue'},
+                'macdsignal_1h': {'color': 'orange'},
+            },
+        }
+    }
 
     # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
     # back into the trend at the next available opportunity, unless the trend has ended,
