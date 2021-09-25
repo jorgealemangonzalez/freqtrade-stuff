@@ -215,11 +215,6 @@ class SymphonIK_Semaphore_v6(IStrategy):
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
 
-            # HMA
-        hmatv = tv_hma(dataframe1h)
-        dataframe1h['hmatv148'] = hmatv(dataframe1h, 148)
-
-
             # MACD
         macd = ta.MACD(dataframe1h, fastperiod=12,
                        slowperiod=26, signalperiod=9)
