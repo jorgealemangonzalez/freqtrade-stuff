@@ -14,6 +14,51 @@ from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
+def tv_wma(dataframe: DataFrame, length: int = 9, field="close") -> DataFrame:
+    """
+    Source: Tradingview "Moving Average Weighted"
+    Pinescript Author: Unknown
+    Args :
+        dataframe : Pandas Dataframe
+        length : WMA length
+        field : Field to use for the calculation
+    Returns :
+        dataframe : Pandas DataFrame with new columns 'tv_wma'
+    """
+
+    norm = 0
+    sum = 0
+
+    for i in range(1, length - 1):
+        weight = (length - i) * length
+        norm = norm + weight
+        sum = sum + dataframe[field].shift(i) * weight
+
+    dataframe["tv_wma"] = sum / norm
+    return dataframe
+
+def tv_hma(dataframe: DataFrame, length: int = 9, field="close") -> DataFrame:
+    """
+    Source: Tradingview "Hull Moving Average"
+    Pinescript Author: Unknown
+    Args :
+        dataframe : Pandas Dataframe
+        length : HMA length
+        field : Field to use for the calculation
+    Returns :
+        dataframe : Pandas DataFrame with new columns 'tv_hma'
+    """
+
+    dataframe["h"] = 2 * tv_wma(dataframe, math.floor(length / 2), field) - tv_wma(
+        dataframe, length, field=field
+    )
+
+    dataframe["tv_hma"] = tv_wma(dataframe, math.floor(math.sqrt(length)), field="h")
+    dataframe.drop("h", inplace=True, axis=1)
+
+    return dataframe
+
+
 def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFrame:
     """
     Pivots Points
@@ -48,12 +93,12 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
 
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
-    # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci Tradingview
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
     # Resistance #2
     # data["s1"] = (2 * data["pivot"]) - high ... Standard
-    # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci Tradingview
     data["s1"] = data["pivot"] - 0.382 * (high - low)
 
     # Calculate Resistances and Supports >1
@@ -70,6 +115,7 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
     return pd.DataFrame(index=dataframe.index, data=data)
 
 
+
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
     ichimoku = ftt.ichimoku(dataframe,
                             conversion_line_period=conversion_line_period,
@@ -83,8 +129,8 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
-    # La Estrategia es: SymphonIK_Semaphore_v6 (con MACD)... Probando Informtive Pairs
+class SymphonIK_Semaphore_v6(IStrategy):
+    # La Estrategia es: SymphonIK_Semaphore_v6 (con MACD)... Probando pivot points
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Optimal timeframe for the strategy
     timeframe = '5m'
@@ -105,7 +151,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     minimal_roi = {
         "0": 10,
     }
-    
+
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
@@ -138,7 +184,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        
+
         # Pares en "1d"
         dataframe1d = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1d")
@@ -157,12 +203,6 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             pair=metadata['pair'], timeframe="4h")
 
         dataframe4h['hma40'] = ftt.hull_moving_average(dataframe4h, 40)
-        
-        # Pivots Points
-        pp = pivots_points(dataframe4h)
-        dataframe4h['pivot'] = pp['pivot']
-        dataframe4h['r1'] = pp['r1']
-        dataframe4h['s1'] = pp['s1']
 
         dataframe = merge_informative_pair(
             dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
@@ -174,6 +214,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1h['hma148'] = ftt.hull_moving_average(dataframe1h, 148)
         dataframe1h['hma67'] = ftt.hull_moving_average(dataframe1h, 67)
         dataframe1h['hma40'] = ftt.hull_moving_average(dataframe1h, 40)
+
+            # HMA
+        hmatv = tv_hma(dataframe1h)
+        dataframe1h['hmatv148'] = hmatv(dataframe1h, 148)
 
 
             # MACD
