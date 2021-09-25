@@ -49,12 +49,12 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=288, levels=3) -> pd.DataF
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
     # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
-    data["r1"] = (data['pivot'] + 0.382) * (high - low)
+    data["r1"] = data['pivot'] + 0.382 * (high - low)
 
     # Resistance #2
     # data["s1"] = (2 * data["pivot"]) - high ... Standard
     # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
-    data["s1"] = (data["pivot"] - 0.382) * (high - low)
+    data["s1"] = data["pivot"] - 0.382 * (high - low)
 
     # Calculate Resistances and Supports >1
     for i in range(2, levels + 1):
