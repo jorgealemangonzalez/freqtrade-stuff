@@ -126,6 +126,12 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             pair=metadata['pair'], timeframe="4h")
 
         dataframe4h['hma40'] = ftt.hull_moving_average(dataframe4h, 40)
+        
+        # Pivots Points
+        pp = pivots_points(dataframe4h)
+        dataframe4h['pivot'] = pp['pivot']
+        dataframe4h['r1'] = pp['r1']
+        dataframe4h['s1'] = pp['s1']
 
         dataframe = merge_informative_pair(
             dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
@@ -144,12 +150,6 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                        slowperiod=26, signalperiod=9)
         dataframe1h['macd'] = macd['macd']
         dataframe1h['macdsignal'] = macd['macdsignal']
-        
-            # Pivots Points
-        pp = pivots_points(dataframe1h)
-        dataframe1h['pivot'] = pp['pivot']
-        dataframe1h['r1'] = pp['r1']
-        dataframe1h['s1'] = pp['s1']
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
