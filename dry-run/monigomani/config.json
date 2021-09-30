@@ -1,7 +1,7 @@
 {
     "strategy": "MoniGoManiHyperStrategy",
     "dry_run": true,
-    "timeframe": "1h",
+    "timeframe": "5m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
@@ -32,7 +32,7 @@
         "use_sell_signal": true,
         "sell_profit_only": false,
         "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600,
+        "ignore_buying_expired_candle_after": 600
     },
     "order_types": {
         "buy": "market",
@@ -56,17 +56,19 @@
         ],
         "pair_blacklist": [
             "BNB/.*",
+            ".*UP/USDT",
+            ".*BEAR/USDT",
+            ".*BULL/USDT"
         ]
     },
     "pairlists": [
         {
             "method": "VolumePairList",
-            "number_assets": 25,
+            "number_assets": 100,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
         },
         {"method": "AgeFilter", "min_days_listed": 10},
-        {"method": "PrecisionFilter"},
         {"method": "PriceFilter", "low_price_ratio": 0.001},
         {
             "method": "RangeStabilityFilter",
@@ -74,13 +76,12 @@
             "min_rate_of_change": 0.05,
             "refresh_period": 1440
         },
-        {"method": "PerformanceFilter"},
         {
             "method": "VolumePairList",
-            "number_assets": 10,
+            "number_assets": 80,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
-        },
+        }
     ],
     "edge": {
         "enabled": false,
@@ -104,7 +105,7 @@
             ["/daily", "/profit", "/balance"],
             ["/status", "/status table", "/performance"],
             ["/whitelist", "/locks", "/trades"],
-            ["/start", "/stop", "/stopbuy", "/help"],
+            ["/start", "/stop", "/stopbuy", "/help"]
         ]
     },
     "api_server": {
