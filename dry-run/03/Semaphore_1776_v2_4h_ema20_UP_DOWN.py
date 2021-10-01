@@ -160,8 +160,6 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
         
-        create_ichimoku(dataframe, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
 
         # Start Trading
 
