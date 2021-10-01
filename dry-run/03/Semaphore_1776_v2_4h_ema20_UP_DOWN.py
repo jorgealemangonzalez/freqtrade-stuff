@@ -1,4 +1,3 @@
-
 # --- Do not remove these libs ---
 from freqtrade.strategy import IStrategy, merge_informative_pair
 from pandas import DataFrame
@@ -86,9 +85,8 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     # La Estrategia es: Fernando_pivots
-    # MoniGoManiHyperStrategy
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
-
+    # Fernando_pivots
     # Optimal timeframe for the strategy
     timeframe = '5m'
 
@@ -109,12 +107,11 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         "0": 10,
     }
     
-   plot_config = {
+    plot_config = {
         'main_plot': {
-            'pivot_1d': {'color': 'orange'},
-            'r1_1d': {'color': 'green'},
-            's1_1d': {'color': 'red'},
-            'ema20': {'color': 'white'},
+            'pivot_1d': {},
+            'r1_1d': {},
+            's1_1d': {},
         },
         'subplots': {
             'MACD': {
@@ -159,14 +156,13 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         # dataframe normal
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
-        
 
         # Start Trading
 
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['r1_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['ema20'])
+            (dataframe['close'] > dataframe['ema20'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
