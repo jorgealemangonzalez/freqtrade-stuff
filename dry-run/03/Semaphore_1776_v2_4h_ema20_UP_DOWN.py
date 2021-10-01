@@ -112,6 +112,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             'pivot_1d': {},
             'r1_1d': {},
             's1_1d': {},
+            'ema20': {},
         },
         'subplots': {
             'MACD': {
