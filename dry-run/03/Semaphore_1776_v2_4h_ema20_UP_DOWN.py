@@ -168,7 +168,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe['trending_over'] = (
             (
-            (dataframe['high'] > dataframe['r1_1d'])
+            (dataframe['high'] >= dataframe['r1_1d'])
             )
             |
             (
