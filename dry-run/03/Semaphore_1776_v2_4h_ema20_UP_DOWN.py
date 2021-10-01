@@ -162,7 +162,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['r1_1d'] > dataframe['close']) &
-            (dataframe['close'] > dataframe['ema20'])
+            (dataframe['pivot_1d'] > dataframe['ema20'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
