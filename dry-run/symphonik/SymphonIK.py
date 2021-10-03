@@ -292,12 +292,12 @@ class SymphonIK(IStrategy):
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['r1_1d'] > dataframe['close']) &
-            (dataframe['close'] > dataframe['ema20'])
+            (dataframe['pivot_1d'] > dataframe['ema20'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
             (
-            (dataframe['close'] > dataframe['r1_1d'])
+            (dataframe['high'] > dataframe['r1_1d'])
             )
             |
             (
