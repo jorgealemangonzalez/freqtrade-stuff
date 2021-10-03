@@ -204,7 +204,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class schiff(IStrategy):
+class SymphonIK(IStrategy):
     # La Estrategia es: Fernando_pivots
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Fernando_pivots
