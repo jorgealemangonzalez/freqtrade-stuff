@@ -6,14 +6,189 @@ import logging
 import freqtrade.vendor.qtpylib.indicators as qtpylib
 
 # --------------------------------
-import math
 import pandas as pd
 import numpy as np
 import technical.indicators as ftt
 from freqtrade.exchange import timeframe_to_minutes
 from technical.util import resample_to_interval, resampled_merge
+from pandas.core.base import PandasObject
+
 
 logger = logging.getLogger(__name__)
+
+def rolling_mean(series, window=200, min_periods=None):
+    min_periods = window if min_periods is None else min_periods
+    if min_periods == window and len(series) > window:
+        return numpy_rolling_mean(series, window, True)
+    else:
+        try:
+            return series.rolling(window=window, min_periods=min_periods).mean()
+        except Exception as e:
+            return pd.Series(series).rolling(window=window, min_periods=min_periods).mean()
+
+# ---------------------------------------------
+
+
+def rolling_min(series, window=14, min_periods=None):
+    min_periods = window if min_periods is None else min_periods
+    try:
+        return series.rolling(window=window, min_periods=min_periods).min()
+    except Exception as e:  # noqa: F841
+        return pd.Series(series).rolling(window=window, min_periods=min_periods).min()
+
+
+# ---------------------------------------------
+
+def rolling_max(series, window=14, min_periods=None):
+    min_periods = window if min_periods is None else min_periods
+    try:
+        return series.rolling(window=window, min_periods=min_periods).min()
+    except Exception as e:  # noqa: F841
+        return pd.Series(series).rolling(window=window, min_periods=min_periods).min()
+
+
+# ---------------------------------------------
+
+def rolling_weighted_mean(series, window=200, min_periods=None):
+    min_periods = window if min_periods is None else min_periods
+    try:
+        return series.ewm(span=window, min_periods=min_periods).mean()
+    except Exception as e:  # noqa: F841
+        return pd.ewma(series, span=window, min_periods=min_periods)
+
+# ---------------------------------------------
+
+
+def hull_mov(series, window=200, min_periods=None):
+    min_periods = window if min_periods is None else min_periods
+    ma = (2 * rolling_mean(series, window / 2, min_periods)) - \
+        rolling_mean(series, window, min_periods)
+    return rolling_mean(ma, np.sqrt(window), min_periods)
+
+def hma(series, window=200, min_periods=None):
+    return hull_mov(series, window=window, min_periods=min_periods)
+
+PandasObject.hull_mov = hull_mov
+
+
+def numpy_rolling_window(data, window):
+    shape = data.shape[:-1] + (data.shape[-1] - window + 1, window)
+    strides = data.strides + (data.strides[-1],)
+    return np.lib.stride_tricks.as_strided(data, shape=shape, strides=strides)
+
+
+def numpy_rolling_series(func):
+    def func_wrapper(data, window, as_source=False):
+        series = data.values if isinstance(data, pd.Series) else data
+
+        new_series = np.empty(len(series)) * np.nan
+        calculated = func(series, window)
+        new_series[-len(calculated):] = calculated
+
+        if as_source and isinstance(data, pd.Series):
+            return pd.Series(index=data.index, data=new_series)
+
+        return new_series
+
+    return func_wrapper
+
+
+@numpy_rolling_series
+def numpy_rolling_mean(data, window, as_source=False):
+    return np.mean(numpy_rolling_window(data, window), axis=-1)
+
+
+@numpy_rolling_series
+def numpy_rolling_std(data, window, as_source=False):
+    return np.std(numpy_rolling_window(data, window), axis=-1, ddof=1)
+
+"""
+ def typical_schiff(bars):
+    res = (bars['high'] + bars['low']) / 2.
+    return pd.Series(index=bars.index, data=res)
+"""
+"""
+def typical_schiff(bars, series, window=200, min_periods=None):
+    ema = rolling_weighted_mean(series, window=window)
+    typical = bars['high']
+    res = (typical + ema) / 2.
+    return pd.Series(index=bars.index, data=res)
+"""
+"""
+def typical_schiff(bars, window=200, min_periods=None):
+    ema = rolling_weighted_mean(bars, window=window)
+    typical = bars['high']
+    res = (typical + ema) / 2.
+    return pd.Series(index=bars.index, data=res)
+"""
+
+def typical_schiff(bars):
+    res = bars['high']
+    return pd.Series(index=bars.index, data=res)
+
+def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFrame:
+    """
+    Pivots Points
+    https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
+    Formula:
+    Pivot = (Previous High + Previous Low + Previous Close)/3
+    Resistance #1 = (2 x Pivot) - Previous Low
+    Support #1 = (2 x Pivot) - Previous High
+    Resistance #2 = (Pivot - Support #1) + Resistance #1
+    Support #2 = Pivot - (Resistance #1 - Support #1)
+    Resistance #3 = (Pivot - Support #2) + Resistance #2
+    Support #3 = Pivot - (Resistance #2 - Support #2)
+    ...
+    :param dataframe:
+    :param timeperiod: Period to compare (in ticker)
+    :param levels: Num of support/resistance desired
+    :return: dataframe
+    """
+
+    data = {}
+
+#    ema = qtpylib.rolling_weighted_mean(
+#        series=pd.Series(index=dataframe.index, data=dataframe["ema"]), window=timeperiod
+#    )
+
+    ema = qtpylib.rolling_weighted_mean(
+         series=pd.Series(index=dataframe.index), window=13
+    )
+
+
+    low = qtpylib.rolling_mean(
+        series=pd.Series(index=dataframe.index, data=dataframe["low"]), window=timeperiod
+    )
+
+    high = qtpylib.rolling_mean(
+        series=pd.Series(index=dataframe.index, data=dataframe["high"]), window=timeperiod
+    )
+
+    # Pivot
+    data["pivot"] = qtpylib.rolling_mean((high + ema) / 2)
+
+    # Resistance #1
+    # data["r1"] = (2 * data["pivot"]) - low ... Standard
+    # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    data["r1"] = data['pivot'] + 0.382 * (high - low)
+
+    # Resistance #2
+    # data["s1"] = (2 * data["pivot"]) - high ... Standard
+    # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    data["s1"] = data["pivot"] - 0.382 * (high - low)
+
+    # Calculate Resistances and Supports >1
+    for i in range(2, levels + 1):
+        prev_support = data["s" + str(i - 1)]
+        prev_resistance = data["r" + str(i - 1)]
+
+        # Resitance
+        data["r" + str(i)] = (data["pivot"] - prev_support) + prev_resistance
+
+        # Support
+        data["s" + str(i)] = data["pivot"] - (prev_resistance - prev_support)
+
+    return pd.DataFrame(index=dataframe.index, data=data)
 
 
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
@@ -29,59 +204,15 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-def tv_wma(dataframe: DataFrame, length: int = 9, field="close") -> DataFrame:
-    """
-    Source: Tradingview "Moving Average Weighted"
-    Pinescript Author: Unknown
-    Args :
-        dataframe : Pandas Dataframe
-        length : WMA length
-        field : Field to use for the calculation
-    Returns :
-        dataframe : Pandas DataFrame with new columns 'tv_wma'
-    """
-
-    norm = 0
-    sum = 0
-
-    for i in range(1, length - 1):
-        weight = (length - i) * length
-        norm = norm + weight
-        sum = sum + dataframe[field].shift(i) * weight
-
-    return sum / norm
-
-
-def tv_hma(dataframe: DataFrame, length: int = 9, field="close") -> DataFrame:
-    """
-    Source: Tradingview "Hull Moving Average"
-    Pinescript Author: Unknown
-    Args :
-        dataframe : Pandas Dataframe
-        length : HMA length
-        field : Field to use for the calculation
-    Returns :
-        dataframe : Pandas DataFrame with new columns 'tv_hma'
-    """
-    dataframe["h"] = (
-        2 * tv_wma(dataframe, math.floor(length / 2), field)) - tv_wma(dataframe, length, field=field)
-
-    wma = tv_wma(
-        dataframe, math.floor(math.sqrt(length)), field="h")
-
-    dataframe.drop("h", inplace=True, axis=1)
-
-    return wma
-
-
-class SymphonIK(IStrategy):
-    # La Estrategia es: SymphonIK_v6 (con MACD)
+class schiff(IStrategy):
+    # La Estrategia es: Fernando_pivots
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
+    # Fernando_pivots
     # Optimal timeframe for the strategy
     timeframe = '5m'
 
     # generate signals from the 1h timeframe
-    informative_timeframe = '1h'
+    informative_timeframe = '1d'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -96,32 +227,12 @@ class SymphonIK(IStrategy):
     minimal_roi = {
         "0": 10,
     }
-
-    # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
-    # back into the trend at the next available opportunity, unless the trend has ended,
-    # in which case it would sell anyway.
-
-    # Stoploss:
-    stoploss = -0.10
-
+    
     plot_config = {
         'main_plot': {
-            'senkou_b_9': {},
-            'senkou_a_9': {},
-            'tenkan_sen_12': {},
-            'kijun_sen_12': {},
-            'kijun_sen_20': {},
-            'kijun_sen_380': {},
-            'hma480': {},
-            'hma800': {},
-            'ema440': {},
-            'ema88': {},
-            'hma148_1h': {},
-            'hma67_1h': {},
-            'hma40_1h': {},
-            'close': {
-                'color': 'black',
-            },
+            'pivot_1d': {},
+            'r1_1d': {},
+            's1_1d': {},
         },
         'subplots': {
             'MACD': {
@@ -131,63 +242,62 @@ class SymphonIK(IStrategy):
         }
     }
 
+    # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
+    # back into the trend at the next available opportunity, unless the trend has ended,
+    # in which case it would sell anyway.
+
+    # Stoploss:
+    stoploss = -0.10
+
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
         informative_pairs = [(pair, self.informative_timeframe)
                              for pair in pairs]
+        if self.dp:
+            for pair in pairs:
+                informative_pairs += [(pair, "1d")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        
+        # Pares en "1d"
+        dataframe1d = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1d")
 
-        # Pares en 1h
-        dataframe1h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="1h")
-
-        dataframe1h['hma148'] = tv_hma(dataframe1h, 148)
-        dataframe1h['hma67'] = tv_hma(dataframe1h, 67)
-        dataframe1h['hma40'] = tv_hma(dataframe1h, 40)
-
-        # MACD
-        macd = ta.MACD(dataframe1h, fastperiod=12,
-                       slowperiod=26, signalperiod=9)
-        dataframe1h['macd'] = macd['macd']
-        dataframe1h['macdsignal'] = macd['macdsignal']
+        # Pivots Points
+        pp = pivots_points(dataframe1d)
+        dataframe1d['pivot'] = pp['pivot']
+        dataframe1d['r1'] = pp['r1']
+        dataframe1d['s1'] = pp['s1']
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
+            dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
         # dataframe normal
 
-        create_ichimoku(dataframe, conversion_line_period=380,
-                        displacement=633, base_line_periods=380, laggin_span=266)
-        create_ichimoku(dataframe, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe, conversion_line_period=12,
-                        displacement=88, base_line_periods=53, laggin_span=53)
-        create_ichimoku(dataframe, conversion_line_period=9,
-                        displacement=26, base_line_periods=26, laggin_span=52)
+        dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
 
-        dataframe['hma480'] = tv_hma(dataframe, 480)
-        dataframe['hma800'] = tv_hma(dataframe, 800)
-        dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
-        dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
+        dataframe['sma20'] = ta.SMA(dataframe, timeperiod=20)
+
+
 
         # Start Trading
 
-        dataframe['ichimoku_ok'] = (
-            (dataframe['macd_1h'] > dataframe['macdsignal_1h']) &
-            (dataframe['kijun_sen_380'] > dataframe['hma148_1h']) &
-            (dataframe['kijun_sen_380'] > dataframe['hma40_1h']) &
-            (dataframe['kijun_sen_12'] > dataframe['kijun_sen_380']) &
-            (dataframe['close'] > dataframe['ema440']) &
-            (dataframe['tenkan_sen_12'] > dataframe['senkou_b_9']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_b_9'])
-        ).astype('int')
+        dataframe['trending_start'] = (
+            (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['close'] > dataframe['ema20'])
+        ).astype('int')        
 
         dataframe['trending_over'] = (
-            (dataframe['hma67_1h'] > dataframe['ema88']) &
-            (dataframe['kijun_sen_20'] > dataframe['close'])
+            (
+            (dataframe['close'] > dataframe['r1_1d'])
+            )
+            |
+            (
+            (dataframe['pivot_1d'] > dataframe['close'])   
+            )
         ).astype('int')
 
         return dataframe
@@ -202,7 +312,7 @@ class SymphonIK(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['ichimoku_ok'] > 0)
+                (dataframe['trending_start'] > 0)
             ), 'buy'] = 1
         return dataframe
 
