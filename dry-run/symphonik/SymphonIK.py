@@ -119,12 +119,15 @@ def typical_schiff(bars, window=200, min_periods=None):
     ema = rolling_weighted_mean(bars, window=window)
     typical = bars['high']
     res = (typical + ema) / 2.
-    return pd.Series(index=bars.index, data=res)
+    return pd.DataFrame(index=bars.index, data=res)
 """
 
 def typical_schiff(bars):
     res = bars['high']
     return pd.Series(index=bars.index, data=res)
+
+# def sma(series, window=200, min_periods=None):
+#    return rolling_mean(series, window=window, min_periods=min_periods)
 
 def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFrame:
     """
@@ -151,9 +154,9 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
 #        series=pd.Series(index=dataframe.index, data=dataframe["ema"]), window=timeperiod
 #    )
 
-    ema = qtpylib.rolling_weighted_mean(
-         series=pd.Series(index=dataframe.index), window=13
-    )
+#    ema = qtpylib.rolling_weighted_mean(
+#         series=pd.Series(index=dataframe.index), window=13
+#    )
 
 
     low = qtpylib.rolling_mean(
@@ -165,7 +168,9 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
     )
 
     # Pivot
-    data["pivot"] = qtpylib.rolling_mean((high + ema) / 2)
+#    data["pivot"] = qtpylib.rolling_mean((high + ema) / 2)
+    data["pivot"] = qtpylib.rolling_mean(series=typical_schiff(dataframe), window=timeperiod)
+
 
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
@@ -204,7 +209,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class SymphonIK(IStrategy):
+class schiff(IStrategy):
     # La Estrategia es: Fernando_pivots
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Fernando_pivots
