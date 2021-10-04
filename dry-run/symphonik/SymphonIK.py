@@ -129,6 +129,12 @@ def typical_schiff(dataframe: pd.Dataframe, timeperiod=88):
     res = (typical + ema) / 2
     return pd.DataFrame(index=bars.index, data=res)
 """
+def typical_schiff(bars, timeperiod=88):
+
+    ema = ta.EMA(bars, timeperiod=timeperiod)
+    typical = bars['high']
+    res = (typical + ema) / 2
+    return pd.Series(index=bars.index, data=res)
 
 def fibonacci_retracements(df, field="close") -> DataFrame:
     # Common Fibonacci replacement thresholds:
@@ -192,8 +198,8 @@ def pivots_points(dataframe: pd.DataFrame,tpe=13, timeperiod=1, levels=3) -> pd.
 
     # Pivot
 #    data["pivot"] = qtpylib.rolling_mean((high + ema) / 2)
-#    data["pivot"] = qtpylib.rolling_mean(series=typical_schiff(dataframe), window=timeperiod)
-    data["pivot"] = qtpylib.rolling_mean((barshigh + ema) / 2)
+    data["pivot"] = qtpylib.rolling_mean(series=typical_schiff(dataframe), window=timeperiod)
+#    data["pivot"] = qtpylib.rolling_mean((barshigh + ema) / 2)
 
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
