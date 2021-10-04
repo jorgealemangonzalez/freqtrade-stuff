@@ -133,7 +133,7 @@ def typical_schiff(dataframe: pd.Dataframe, timeperiod=88):
 # def sma(series, window=200, min_periods=None):
 #    return rolling_mean(series, window=window, min_periods=min_periods)
 
-def pivots_points(dataframe: pd.DataFrame,tpe=88, timeperiod=1, levels=3) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame,tpe=13, timeperiod=1, levels=3) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
