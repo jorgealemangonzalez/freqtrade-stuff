@@ -155,7 +155,7 @@ def fibonacci_retracements(df, field="close") -> DataFrame:
 # def sma(series, window=200, min_periods=None):
 #    return rolling_mean(series, window=window, min_periods=min_periods)
 
-def pivots_points(dataframe: pd.DataFrame,tpe=13, timeperiod=7, levels=3) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame,tpe=13, timeperiod=88, levels=3) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
