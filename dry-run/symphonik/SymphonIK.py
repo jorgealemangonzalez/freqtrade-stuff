@@ -276,6 +276,9 @@ class SymphonIK(IStrategy):
         # Pares en "1d"
         dataframe1d = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1d")
+       
+        dataframe1d['ema88'] = ta.EMA(dataframe1d, timeperiod=88)
+
 
         # Pivots Points
         pp = pivots_points(dataframe1d)
