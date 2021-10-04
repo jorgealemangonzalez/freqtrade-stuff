@@ -121,15 +121,19 @@ def typical_schiff(bars, window=200, min_periods=None):
     res = (typical + ema) / 2.
     return pd.DataFrame(index=bars.index, data=res)
 """
+"""
+def typical_schiff(dataframe: pd.Dataframe, timeperiod=88):
 
-def typical_schiff(bars):
-    res = bars['high']
-    return pd.Series(index=bars.index, data=res)
+    ema = ta.EMA(dataframe, timeperiod=timeperiod)
+    typical = dataframe['high']
+    res = (typical + ema) / 2
+    return pd.DataFrame(index=bars.index, data=res)
+"""
 
 # def sma(series, window=200, min_periods=None):
 #    return rolling_mean(series, window=window, min_periods=min_periods)
 
-def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame,tpe=88, timeperiod=1, levels=3) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
@@ -158,6 +162,9 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
 #         series=pd.Series(index=dataframe.index), window=13
 #    )
 
+    ema = ta.EMA(dataframe, timeperiod=tpe)
+
+    barshigh = (dataframe["high"])
 
     low = qtpylib.rolling_mean(
         series=pd.Series(index=dataframe.index, data=dataframe["low"]), window=timeperiod
@@ -169,8 +176,8 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
 
     # Pivot
 #    data["pivot"] = qtpylib.rolling_mean((high + ema) / 2)
-    data["pivot"] = qtpylib.rolling_mean(series=typical_schiff(dataframe), window=timeperiod)
-
+#    data["pivot"] = qtpylib.rolling_mean(series=typical_schiff(dataframe), window=timeperiod)
+    data["pivot"] = qtpylib.rolling_mean((barshigh + ema) / 2)
 
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
@@ -209,7 +216,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class SymphonIK(IStrategy):
+class schiff_v2(IStrategy):
     # La Estrategia es: Fernando_pivots
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
     # Fernando_pivots
