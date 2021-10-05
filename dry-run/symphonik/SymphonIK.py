@@ -4,6 +4,8 @@ from pandas import DataFrame
 import talib.abstract as ta
 import logging
 import freqtrade.vendor.qtpylib.indicators as qtpylib
+from technical.indicators import PMAX, zema
+
 
 # --------------------------------
 import pandas as pd
@@ -319,6 +321,8 @@ class SymphonIK(IStrategy):
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
 
         dataframe['sma20'] = ta.SMA(dataframe, timeperiod=20)
+        
+        dataframe['ZLEMA'] = zema(dataframe, period=100)
 
 
 
