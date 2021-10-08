@@ -141,21 +141,21 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "10m")]
+                informative_pairs += [(pair, "1d"),(pair, "15m")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
         
-        # Pares en "10m"
-        dataframe10m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="10m")
+        # Pares en "15m"
+        dataframe15m = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="15m")
 
-        # dataframe10m['ema50'] = ta.EMA(dataframe10m, timeperiod=50)
+        # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe10m, self.timeframe, "10m", ffill=True)
+            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
 
 
         # Pares en "1d"
@@ -195,7 +195,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close_10m'])   
+            (dataframe['pivot_1d'] > dataframe['close_15m'])   
             )
         ).astype('int')
 
