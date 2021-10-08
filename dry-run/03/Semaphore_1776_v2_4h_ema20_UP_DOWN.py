@@ -1,3 +1,4 @@
+
 # --- Do not remove these libs ---
 from freqtrade.strategy import IStrategy, merge_informative_pair
 from pandas import DataFrame
@@ -14,7 +15,7 @@ from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
-def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
@@ -51,6 +52,9 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
     # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
+    data["rS1"] = data['pivot'] + 0.0955 * (high - low)
+
+
     # Resistance #2
     # data["s1"] = (2 * data["pivot"]) - high ... Standard
     # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
@@ -85,8 +89,9 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     # La Estrategia es: Fernando_pivots
+    # MoniGoManiHyperStrategy
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
-    # Fernando_pivots
+
     # Optimal timeframe for the strategy
     timeframe = '5m'
 
@@ -110,6 +115,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
+            'rS1_1d': {},
             'r1_1d': {},
             's1_1d': {},
             'ema20': {},
@@ -135,12 +141,23 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d")]
+                informative_pairs += [(pair, "1d"),(pair, "10m")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+
         
+        # Pares en "10m"
+        dataframe10m = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="10m")
+
+        # dataframe10m['ema50'] = ta.EMA(dataframe10m, timeperiod=50)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe10m, self.timeframe, "10m", ffill=True)
+
+
         # Pares en "1d"
         dataframe1d = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1d")
@@ -150,6 +167,8 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1d['pivot'] = pp['pivot']
         dataframe1d['r1'] = pp['r1']
         dataframe1d['s1'] = pp['s1']
+        dataframe1d['rS1'] = pp['rS1']
+
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
@@ -158,11 +177,15 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
 
+        create_ichimoku(dataframe, conversion_line_period=20,
+                        displacement=88, base_line_periods=88, laggin_span=88)
+
         # Start Trading
+        # En Dry Run cambiar close_15m por close_10m, el informative_pairs y la parte de código de "pares en 15m"
 
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
-            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['rS1_1d'] > dataframe['close']) &
             (dataframe['pivot_1d'] > dataframe['ema20'])
         ).astype('int')        
 
@@ -172,7 +195,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close'])   
+            (dataframe['pivot_1d'] > dataframe['close_10m'])   
             )
         ).astype('int')
 
