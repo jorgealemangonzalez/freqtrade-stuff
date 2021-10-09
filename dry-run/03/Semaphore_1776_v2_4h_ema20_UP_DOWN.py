@@ -96,7 +96,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     timeframe = '5m'
 
     # generate signals from the 1h timeframe
-    informative_timeframe = '1d'
+    informative_timeframe = '15m'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -141,7 +141,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "15m")]
+                informative_pairs += [(pair, "1d"),(pair, "15m"),(pair, "5m")]
 
         return informative_pairs
 
@@ -152,7 +152,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe15m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="15m")
 
-        # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
+        dataframe15m['ema1'] = ta.EMA(dataframe15m, timeperiod=1)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
