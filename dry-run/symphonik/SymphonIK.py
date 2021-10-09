@@ -87,9 +87,10 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Miku_PP_v2(IStrategy):
+class SymphonIK(IStrategy):
     # La base de la Estrategia es: Fernando_pivots
     # Miku_1m_5m_CSen444v2_N_1_5
+    # SymphonIK
 
     # Optimal timeframe for the strategy
     timeframe = '1m'
