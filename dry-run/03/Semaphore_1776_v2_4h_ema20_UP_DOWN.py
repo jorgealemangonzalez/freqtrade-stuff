@@ -152,7 +152,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe15m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="15m")
 
-        dataframe15m['ema1'] = ta.EMA(dataframe15m, timeperiod=1)
+        # dataframe15m['ema10'] = ta.EMA(dataframe15m, timeperiod=10)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
