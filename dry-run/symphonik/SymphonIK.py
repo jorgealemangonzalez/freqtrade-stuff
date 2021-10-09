@@ -209,7 +209,7 @@ class SymphonIK(IStrategy):
 
         dataframe['pivots_ok'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
-            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['r1_1d'] > dataframe['close'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
