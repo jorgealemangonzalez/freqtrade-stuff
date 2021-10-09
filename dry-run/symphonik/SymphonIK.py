@@ -192,10 +192,9 @@ class SymphonIK(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=9, displacement=26, base_line_periods=26, laggin_span=52)
         create_ichimoku(dataframe, conversion_line_period=444, displacement=444, base_line_periods=444, laggin_span=444)
         create_ichimoku(dataframe, conversion_line_period=100, displacement=88, base_line_periods=440, laggin_span=440)
-        create_ichimoku(dataframe, conversion_line_period=40, displacement=88, base_line_periods=176, laggin_span=176)
-
 
         # Start Trading
+        """
         dataframe['ichimoku_ok'] = (
             (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
             (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
@@ -206,10 +205,20 @@ class SymphonIK(IStrategy):
             (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
             (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
         ).astype('int')
+        """
 
         dataframe['pivots_ok'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
-            (dataframe['r1_1d'] > dataframe['close'])
+            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
+            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
+            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
+            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
+            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
+            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
+            (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
+            (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
+        #    (dataframe['pivot_1d'] > dataframe['ema20_5m']) anulo ema20_5m para ver si hace entradas en Dry Run
         ).astype('int')        
 
         dataframe['trending_over'] = (
@@ -228,8 +237,7 @@ class SymphonIK(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['pivots_ok'] > 0) &
-                (dataframe['ichimoku_ok'] > 0)
+                (dataframe['pivots_ok'] > 0)
             ), 'buy'] = 1
         return dataframe
 
