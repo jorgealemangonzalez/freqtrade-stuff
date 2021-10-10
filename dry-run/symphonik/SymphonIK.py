@@ -117,7 +117,7 @@ class SymphonIK(IStrategy):
             'pivot_1d': {},
             'r1_1d': {},
             's1_1d': {},
-            'ema20_5m': {},
+            'senkou_b_444': {},
         },
         'subplots': {
             'MACD': {
