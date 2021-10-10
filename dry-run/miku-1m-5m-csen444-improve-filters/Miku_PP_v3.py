@@ -87,14 +87,18 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Miku_PP_v2(IStrategy):
-    # Miku_PP_v2
-    # La base de la Estrategia es: Fernando_pivots
-    # Miku_1m_5m_CSen444v2_N_1_5
-    # SymphonIK
+class Miku_PP_v3(IStrategy):
+    """
+     Miku_PP_v3
+     La base de la Estrategia es: Miku_PP_v2 y Miku_1m_5m_CSen44_1_5m
+    
+    Provando en:
+     Miku_1m_5m_CSen444v2_N_1_5
+     SymphonIK
+    """
 
     # Optimal timeframe for the strategy
-    timeframe = '1m'
+    timeframe = '5m'
 
     # generate signals from the 1h timeframe
     informative_timeframe = '1d'
@@ -116,10 +120,10 @@ class Miku_PP_v2(IStrategy):
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
+            'rS1_1d': {},
             'r1_1d': {},
             's1_1d': {},
-            'ema88_5m': {},
-            'senkou_b_444': {},
+            'senkou_b_88': {},
         },
         'subplots': {
             'MACD': {
@@ -142,7 +146,7 @@ class Miku_PP_v2(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "5m")]
+                informative_pairs += [(pair, "1d")]
 
         return informative_pairs
 
@@ -167,39 +171,29 @@ class Miku_PP_v2(IStrategy):
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
         """
-        # dataframe 5m
-        """
-
-        dataframe5m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="5m")
-
-
-        dataframe5m['ema20'] = ta.EMA(dataframe5m, timeperiod=20)
-        dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
-
-
-        # Ichomoku
-        create_ichimoku(dataframe5m, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
-
-        create_ichimoku(dataframe5m, conversion_line_period=355,
-                        displacement=880, base_line_periods=175, laggin_span=175)
-        # Ichimoku
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
-
-        """
         # dataframe normal
         """
-
-        create_ichimoku(dataframe, conversion_line_period=20, displacement=88, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe, conversion_line_period=9, displacement=26, base_line_periods=26, laggin_span=52)
-        create_ichimoku(dataframe, conversion_line_period=444, displacement=444, base_line_periods=444, laggin_span=444)
-        create_ichimoku(dataframe, conversion_line_period=100, displacement=88, base_line_periods=440, laggin_span=440)
-
-        # Start Trading
         """
+        create_ichimoku(dataframe, conversion_line_period=9, 
+                        displacement=26, base_line_periods=26, laggin_span=52)
+        """
+        create_ichimoku(dataframe, conversion_line_period=20, 
+                        displacement=88, base_line_periods=88, laggin_span=88)
+
+        create_ichimoku(dataframe, conversion_line_period=88, 
+                        displacement=444, base_line_periods=88, laggin_span=88)
+
+        create_ichimoku(dataframe, conversion_line_period=355,
+                        displacement=880, base_line_periods=175, laggin_span=175)
+
+
+        dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
+
+
+        """
+        Notes: Start Trading
+
+        * En 1m
         dataframe['ichimoku_ok'] = (
             (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
             (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
@@ -210,31 +204,23 @@ class Miku_PP_v2(IStrategy):
             (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
             (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
         ).astype('int')
-        """
-        #    (dataframe['pivot_1d'] > dataframe['ema20_5m']) anulo ema20_5m para ver si hace entradas en Dry Run
-        dataframe['pivots_ok'] = (
-            (dataframe['close_5m'] > dataframe['pivot_1d']) &
-            (dataframe['r1_1d'] > dataframe['close_5m']) &
-            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
-            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
+
+        * En 5m
+        dataframe['ichimoku_ok'] = (
+            (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
             (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
-            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
+            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_88']) &
             (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
             (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
             (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
             (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
-        ).astype('int')        
-
-        
-        dataframe['trending_over'] = (
-            
-            (dataframe['senkou_b_444'] > dataframe['close'])
-            
         ).astype('int')
 
-        return dataframe
-        
-        """
+
+            (dataframe['pivot_1d'] > dataframe['ema20_5m']) anulo ema20_5m para ver si hace entradas en Dry Run
+
         dataframe['trending_over'] = (
             (
             (dataframe['senkou_b_444'] > dataframe['close'])
@@ -248,6 +234,25 @@ class Miku_PP_v2(IStrategy):
 
         return dataframe
         """
+
+        # Start Trading
+
+        dataframe['pivots_ok'] = (
+            (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['rS1_1d'] > dataframe['close']) &
+            (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
+            (dataframe['senkou_a_20'] > dataframe['senkou_b_20'])
+        ).astype('int')        
+
+        
+        dataframe['trending_over'] = (
+            
+            (dataframe['senkou_b_88'] > dataframe['close'])
+            
+        ).astype('int')
+
+        return dataframe
+        
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
