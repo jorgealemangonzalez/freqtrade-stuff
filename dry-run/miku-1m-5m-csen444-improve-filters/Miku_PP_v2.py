@@ -116,7 +116,6 @@ class Miku_PP_v2(IStrategy):
             'pivot_1d': {},
             'r1_1d': {},
             's1_1d': {},
-            'ema20_5m': {},
         },
         'subplots': {
             'MACD': {
