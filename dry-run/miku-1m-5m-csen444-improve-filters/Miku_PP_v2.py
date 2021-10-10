@@ -118,6 +118,7 @@ class Miku_PP_v2(IStrategy):
             'pivot_1d': {},
             'r1_1d': {},
             's1_1d': {},
+            'ema88_5m': {},
             'senkou_b_444': {},
         },
         'subplots': {
@@ -174,6 +175,8 @@ class Miku_PP_v2(IStrategy):
 
 
         dataframe5m['ema20'] = ta.EMA(dataframe5m, timeperiod=20)
+        dataframe5m['ema88'] = ta.EMA(dataframe5m, timeperiod=88)
+
 
         # Ichomoku
         create_ichimoku(dataframe5m, conversion_line_period=20,
