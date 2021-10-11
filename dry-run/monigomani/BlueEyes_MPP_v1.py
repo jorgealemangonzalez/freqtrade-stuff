@@ -15,7 +15,7 @@ from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
-def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
@@ -52,6 +52,9 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=3) -> pd.DataFra
     # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
+    data["rS1"] = data['pivot'] + 0.0955 * (high - low)
+
+
     # Resistance #2
     # data["s1"] = (2 * data["pivot"]) - high ... Standard
     # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
@@ -84,9 +87,16 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class MoniGoManiHyperStrategy(IStrategy):
-    # La Estrategia es: Fernando_pivots
-    # MoniGoManiHyperStrategy
+class BlueEyes_MPP_v1(IStrategy):
+    """
+     BlueEyes_MPP_v1
+     
+     La base de la Estrategia es: Miku_PP_v3
+    
+    Provando en:
+     Miku_1m_5m_CSen444v2_N_1_5
+     SymphonIK
+    """
 
     # Optimal timeframe for the strategy
     timeframe = '5m'
@@ -111,8 +121,10 @@ class MoniGoManiHyperStrategy(IStrategy):
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
+            'rS1_1d': {},
             'r1_1d': {},
             's1_1d': {},
+            'senkou_b_88': {},
         },
         'subplots': {
             'MACD': {
@@ -140,8 +152,11 @@ class MoniGoManiHyperStrategy(IStrategy):
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        
-        # Pares en "1d"
+
+        """
+        # dataframe "1d"
+        """
+
         dataframe1d = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1d")
 
@@ -150,33 +165,104 @@ class MoniGoManiHyperStrategy(IStrategy):
         dataframe1d['pivot'] = pp['pivot']
         dataframe1d['r1'] = pp['r1']
         dataframe1d['s1'] = pp['s1']
+        dataframe1d['rS1'] = pp['rS1']
+        # Pivots Points
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
+        """
         # dataframe normal
+        """
+        """
+        create_ichimoku(dataframe, conversion_line_period=9, 
+                        displacement=26, base_line_periods=26, laggin_span=52)
+        """
+        create_ichimoku(dataframe, conversion_line_period=20, 
+                        displacement=88, base_line_periods=88, laggin_span=88)
+
+        create_ichimoku(dataframe, conversion_line_period=88, 
+                        displacement=444, base_line_periods=88, laggin_span=88)
+
+        create_ichimoku(dataframe, conversion_line_period=355,
+                        displacement=880, base_line_periods=175, laggin_span=175)
+
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
+        dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
+        dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
 
-        # Start Trading
 
-        dataframe['trending_start'] = (
+
+        """
+        Notes: Start Trading
+
+        * En 1m
+        dataframe['ichimoku_ok'] = (
+            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
+            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
+            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
+            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
+            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
+            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
+            (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
+            (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
+        ).astype('int')
+
+        * En 5m
+        dataframe['ichimoku_ok'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['r1_1d'] > dataframe['close']) &
-            (dataframe['close'] > dataframe['ema20'])
-        ).astype('int')        
+            (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
+            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
+            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_88']) &
+            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
+            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
+            (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
+            (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
+        ).astype('int')
+
+
+            (dataframe['pivot_1d'] > dataframe['ema20_5m']) anulo ema20_5m para ver si hace entradas en Dry Run
 
         dataframe['trending_over'] = (
             (
-            (dataframe['close'] > dataframe['r1_1d'])
+            (dataframe['senkou_b_444'] > dataframe['close'])
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close'])   
+            (dataframe['pivot_1d'] > dataframe['close'])
             )
+            
         ).astype('int')
 
         return dataframe
+
+            (dataframe['kijun_sen_355'] >= dataframe['senkou_b_20']) &
+
+        """
+
+        # Start Trading
+
+        dataframe['pivots_ok'] = (
+            (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['close'] > dataframe['ema440']) &
+            (dataframe['ema88'] > dataframe['ema440']) &
+            (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
+            (dataframe['close'] > dataframe['senkou_b_88'])
+
+        ).astype('int')        
+
+        
+        dataframe['trending_over'] = (
+            
+            (dataframe['ema88'] > dataframe['close'])
+            
+        ).astype('int')
+
+        return dataframe
+        
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
@@ -188,7 +274,7 @@ class MoniGoManiHyperStrategy(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['trending_start'] > 0)
+                (dataframe['pivots_ok'] > 0)
             ), 'buy'] = 1
         return dataframe
 
