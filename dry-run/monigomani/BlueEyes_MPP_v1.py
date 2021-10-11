@@ -124,6 +124,10 @@ class BlueEyes_MPP_v1(IStrategy):
             'rS1_1d': {},
             'r1_1d': {},
             's1_1d': {},
+            'ema440': {},
+            'ema88': {},
+            'kijun_sen_355': {},
+            'tenkan_sen_355': {},
             'senkou_b_88': {},
         },
         'subplots': {
