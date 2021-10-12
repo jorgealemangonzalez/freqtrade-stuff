@@ -121,8 +121,8 @@ class FPP(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd_1h': {'color': 'blue'},
-                'macdsignal_1h': {'color': 'orange'},
+                'macd_4h': {'color': 'blue'},
+                'macdsignal_4h': {'color': 'orange'},
             },
         }
     }
