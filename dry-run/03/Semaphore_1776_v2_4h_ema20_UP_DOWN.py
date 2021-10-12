@@ -88,15 +88,15 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
-    # La Estrategia es: Fernando_pivots
-    # MoniGoManiHyperStrategy
+    # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
+
+    # Pruebas en:
+    # Obelisk-custom-1
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
 
-    # Optimal timeframe for the strategy
     timeframe = '5m'
 
-    # generate signals from the 1h timeframe
-    informative_timeframe = '15m'
+    informative_timeframe = '1d'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -122,9 +122,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd_1h': {'color': 'blue'},
-                'macdsignal_1h': {'color': 'orange'},
+                'macd_4h': {'color': 'blue'},
+                'macdsignal_4h': {'color': 'orange'},
             },
+            'cci': {},
         }
     }
 
@@ -141,7 +142,7 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "15m"),(pair, "5m")]
+                informative_pairs += [(pair, "1d"),(pair, "4h"),(pair, "15m")]
 
         return informative_pairs
 
@@ -152,10 +153,23 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe15m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="15m")
 
-        # dataframe15m['ema10'] = ta.EMA(dataframe15m, timeperiod=10)
+        # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
+
+        # Pares en "4h"
+        dataframe4h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="4h")
+
+            # MACD
+        macd = ta.MACD(dataframe4h, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe4h['macd'] = macd['macd']
+        dataframe4h['macdsignal'] = macd['macdsignal']
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
 
         # Pares en "1d"
@@ -180,13 +194,16 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
 
-        # Start Trading
-        # En Dry Run cambiar close_15m por close_10m, el informative_pairs y la parte de código de "pares en 15m"
+        dataframe['cci'] = ta.CCI(dataframe)
 
+
+        # Start Trading
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['rS1_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['ema20'])
+            (dataframe['pivot_1d'] > dataframe['ema20']) &
+            (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
+            (dataframe['cci'] > 26)
         ).astype('int')        
 
         dataframe['trending_over'] = (
