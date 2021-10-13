@@ -129,8 +129,9 @@ class SymphonIK(IStrategy):
                 'macd_4h': {'color': 'blue'},
                 'macdsignal_4h': {'color': 'orange'},
             },
-            'CCI': {},
-        }
+            'CCI': {
+                 'cci': {'color': 'blue'},
+            },        }
     }
 
     # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
