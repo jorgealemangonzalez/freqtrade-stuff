@@ -88,15 +88,14 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class SymphonIK(IStrategy):
-    # La base de la Estrategia es: Fernando_pivots
-    # Miku_1m_5m_CSen444v2_N_1_5
+    # La Estrategia base es: FPP_v2
+
+    # Pruebas en:
     # SymphonIK
 
-    # Optimal timeframe for the strategy
-    timeframe = '1m'
+    timeframe = '5m'
 
-    # generate signals from the 1h timeframe
-    informative_timeframe = '1d'
+    informative_timeframe = '1w'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -115,15 +114,22 @@ class SymphonIK(IStrategy):
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
+            'rS1_1d': {},
             'r1_1d': {},
             's1_1d': {},
-            'ema20_5m': {},
+            'ema20': {},
+            'pivotw_1w': {},
+            'rS1w_1w': {},
+            'r1w_1w': {},
+            's1w_1w': {},
+            'ema20_4h': {},
         },
         'subplots': {
             'MACD': {
-                'macd_1h': {'color': 'blue'},
-                'macdsignal_1h': {'color': 'orange'},
+                'macd_4h': {'color': 'blue'},
+                'macdsignal_4h': {'color': 'orange'},
             },
+            'cci': {},
         }
     }
 
@@ -140,16 +146,39 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "5m")]
+                informative_pairs += [(pair, "1w"),(pair, "1d"),(pair, "4h"),(pair, "15m")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-        """
-        # dataframe "1d"
-        """
+        
+        # Pares en "15m"
+        dataframe15m = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="15m")
 
+        # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
+
+        # Pares en "4h"
+        dataframe4h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="4h")
+
+            # MACD
+        macd = ta.MACD(dataframe4h, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe4h['macd'] = macd['macd']
+        dataframe4h['macdsignal'] = macd['macdsignal']
+
+        dataframe4h['ema20'] = ta.EMA(dataframe4h, timeperiod=20)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
+
+
+        # Pares en "1d"
         dataframe1d = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1d")
 
@@ -159,91 +188,59 @@ class SymphonIK(IStrategy):
         dataframe1d['r1'] = pp['r1']
         dataframe1d['s1'] = pp['s1']
         dataframe1d['rS1'] = pp['rS1']
-        # Pivots Points
+
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
-        """
-        # dataframe 5m
-        """
+        # Pares en "1w"
+        dataframe1w = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1w")
 
-        dataframe5m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="5m")
+        # Pivots Points
+        ppw = pivots_points(dataframe1w)
+        dataframe1w['pivotw'] = ppw['pivot']
+        dataframe1w['r1w'] = ppw['r1']
+        dataframe1w['s1w'] = ppw['s1']
+        dataframe1w['rS1w'] = ppw['rS1']
 
-
-        dataframe5m['ema20'] = ta.EMA(dataframe5m, timeperiod=20)
-
-        # Ichomoku
-        create_ichimoku(dataframe5m, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
-
-        create_ichimoku(dataframe5m, conversion_line_period=355,
-                        displacement=880, base_line_periods=175, laggin_span=175)
-        # Ichimoku
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
+            dataframe, dataframe1w, self.timeframe, "1w", ffill=True)
 
-        """
         # dataframe normal
-        """
 
-        create_ichimoku(dataframe, conversion_line_period=20, displacement=88, base_line_periods=88, laggin_span=88)
-        create_ichimoku(dataframe, conversion_line_period=9, displacement=26, base_line_periods=26, laggin_span=52)
-        create_ichimoku(dataframe, conversion_line_period=444, displacement=444, base_line_periods=444, laggin_span=444)
-        create_ichimoku(dataframe, conversion_line_period=100, displacement=88, base_line_periods=440, laggin_span=440)
+        dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
+
+        create_ichimoku(dataframe, conversion_line_period=20,
+                        displacement=88, base_line_periods=88, laggin_span=88)
+
+        dataframe['cci'] = ta.CCI(dataframe, timeperiod=20)
+
 
         # Start Trading
-        """
-        dataframe['ichimoku_ok'] = (
-            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
-            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
-            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
-            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
-            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
-            (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
-            (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
-        ).astype('int')
-        """
-        #    (dataframe['pivot_1d'] > dataframe['ema20_5m']) anulo ema20_5m para ver si hace entradas en Dry Run
-        dataframe['pivots_ok'] = (
-            (dataframe['close_5m'] > dataframe['pivot_1d']) &
-            (dataframe['r1_1d'] > dataframe['close_5m']) &
-            (dataframe['kijun_sen_355_5m'] >= dataframe['tenkan_sen_355_5m']) &
-            (dataframe['senkou_a_100'] > dataframe['senkou_b_100']) &
-            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
-            (dataframe['kijun_sen_20'] > dataframe['tenkan_sen_444']) &
-            (dataframe['senkou_a_9'] > dataframe['senkou_a_20']) &
-            (dataframe['tenkan_sen_20'] >= dataframe['kijun_sen_20']) &
-            (dataframe['tenkan_sen_9'] >= dataframe['tenkan_sen_20']) &
-            (dataframe['tenkan_sen_9'] >= dataframe['kijun_sen_9'])
+        dataframe['trending_start'] = (
+            (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['rS1_1d'] > dataframe['close']) &
+            (dataframe['pivot_1d'] > dataframe['ema20']) &
+            (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
+            (dataframe['cci'] > 26) &
+            (dataframe['close_4h'] > dataframe['pivotw_1w']) &
+            (dataframe['close_4h'] > dataframe['ema20_4h'])
+
         ).astype('int')        
 
-        
-        dataframe['trending_over'] = (
-            
-            (dataframe['senkou_b_444'] > dataframe['close'])
-            
-        ).astype('int')
-
-        return dataframe
-        
-        """
         dataframe['trending_over'] = (
             (
-            (dataframe['senkou_b_444'] > dataframe['close'])
+            (dataframe['high'] >= dataframe['r1_1d'])
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close'])
+            (dataframe['pivot_1d'] > dataframe['close_15m'])   
             )
-            
         ).astype('int')
 
         return dataframe
-        """
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
@@ -255,7 +252,7 @@ class SymphonIK(IStrategy):
 
         dataframe.loc[
             (
-                (dataframe['pivots_ok'] > 0)
+                (dataframe['trending_start'] > 0)
             ), 'buy'] = 1
         return dataframe
 
