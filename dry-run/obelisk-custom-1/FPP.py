@@ -92,6 +92,7 @@ class FPP(IStrategy):
 
     # Pruebas en:
     # Obelisk-custom-1
+    # Semaphore_1776_v2_4h_ema20_UP_DOWN
 
     timeframe = '5m'
 
@@ -124,6 +125,7 @@ class FPP(IStrategy):
                 'macd_4h': {'color': 'blue'},
                 'macdsignal_4h': {'color': 'orange'},
             },
+            'cci': {},
         }
     }
 
