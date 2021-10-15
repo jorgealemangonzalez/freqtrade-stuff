@@ -88,11 +88,10 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class SymphonIK(IStrategy):
-    # La Estrategia base es: FPP_v2
+    # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
 
     # Pruebas en:
     # Obelisk-custom-1
-    # SymphonIK
 
     timeframe = '5m'
 
@@ -118,11 +117,8 @@ class SymphonIK(IStrategy):
             'rS1_1d': {},
             'r1_1d': {},
             's1_1d': {},
+            'pivot_1w': {},
             'ema20': {},
-            'pivotw_1w': {},
-            'rS1w_1w': {},
-            'r1w_1w': {},
-            'ema20_4h': {},
         },
         'subplots': {
             'MACD': {
@@ -131,7 +127,6 @@ class SymphonIK(IStrategy):
             },
             'CCI': {
                  'cci': {'color': 'blue'},
-            },
         }
     }
 
@@ -174,8 +169,6 @@ class SymphonIK(IStrategy):
         dataframe4h['macd'] = macd['macd']
         dataframe4h['macdsignal'] = macd['macdsignal']
 
-        dataframe4h['ema20'] = ta.EMA(dataframe4h, timeperiod=20)
-
         dataframe = merge_informative_pair(
             dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
@@ -200,11 +193,11 @@ class SymphonIK(IStrategy):
             pair=metadata['pair'], timeframe="1w")
 
         # Pivots Points
-        ppw = pivots_points(dataframe1w)
-        dataframe1w['pivotw'] = ppw['pivot']
-        dataframe1w['r1w'] = ppw['r1']
-        dataframe1w['s1w'] = ppw['s1']
-        dataframe1w['rS1w'] = ppw['rS1']
+        pp = pivots_points(dataframe1w)
+        dataframe1w['pivot'] = pp['pivot']
+        dataframe1w['r1'] = pp['r1']
+        dataframe1w['s1'] = pp['s1']
+        dataframe1w['rS1'] = pp['rS1']
 
 
         dataframe = merge_informative_pair(
@@ -225,12 +218,9 @@ class SymphonIK(IStrategy):
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['rS1_1d'] > dataframe['close']) &
             (dataframe['pivot_1d'] > dataframe['ema20']) &
+            (dataframe['close_4h'] > dataframe['pivot_1w']) &
             (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
-            (dataframe['close_4h'] > dataframe['pivotw_1w']) &
-            (dataframe['close_4h'] > dataframe['ema20_4h']) &
             (dataframe['cci'] > 26)
-
-
         ).astype('int')        
 
         dataframe['trending_over'] = (
@@ -239,7 +229,7 @@ class SymphonIK(IStrategy):
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close_15m'])
+            (dataframe['pivot_1d'] > dataframe['close_15m'])   
             )
         ).astype('int')
 
