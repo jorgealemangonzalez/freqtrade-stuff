@@ -101,7 +101,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class FPP_v2(IStrategy):
+class SymphonIK(IStrategy):
     # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
 
     # Pruebas en:
@@ -135,6 +135,7 @@ class FPP_v2(IStrategy):
             'pivotw_1w': {},
             'rS1w_1w': {},
             'r1w_1w': {},
+            'r2w_1w': {},
             's1w_1w': {},
             'ema20_4h': {},
         },
@@ -219,7 +220,9 @@ class FPP_v2(IStrategy):
         dataframe1w['r1w'] = ppw['r1']
         dataframe1w['s1w'] = ppw['s1']
         dataframe1w['rS1w'] = ppw['rS1']
+        dataframe1w['r2w'] = ppw['r2']
         dataframe1w['r3w'] = ppw['r3']
+
 
 
 
