@@ -208,7 +208,7 @@ class SymphonIK(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
 
-        dataframe['cci'] = ta.CCI(dataframe, timeperiod=20)
+        dataframe['cci'] = ta.CCI(dataframe)
 
 
         # Start Trading
