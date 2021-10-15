@@ -87,7 +87,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class SymphonIK(IStrategy):
+class FPP(IStrategy):
     # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
 
     # Pruebas en:
@@ -125,6 +125,9 @@ class SymphonIK(IStrategy):
                 'macd_4h': {'color': 'blue'},
                 'macdsignal_4h': {'color': 'orange'},
             },
+            'CCI': {
+                 'cci': {'color': 'blue'},
+            },
         }
     }
 
@@ -141,7 +144,7 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1w"),(pair, "1d"),(pair, "4h"),(pair, "15m")]
+                informative_pairs += [(pair, "1w"),(pair, "1d"),(pair, "4h"),(pair, "15m"),(pair, "5m")]
 
         return informative_pairs
 
