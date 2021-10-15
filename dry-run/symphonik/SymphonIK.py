@@ -15,7 +15,7 @@ from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
-def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=13) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
@@ -53,12 +53,26 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFra
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
     data["rS1"] = data['pivot'] + 0.0955 * (high - low)
+    data["rS2"] = data['pivot'] + 0.191 * (high - low)
+    data["rS3"] = data['pivot'] + 0.2865 * (high - low)
+
+    data["r2"] = data['pivot'] + 0.618 * (high - low)
+
+    data["r3"] = data['pivot'] + (high - low)
 
 
     # Resistance #2
     # data["s1"] = (2 * data["pivot"]) - high ... Standard
     # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
     data["s1"] = data["pivot"] - 0.382 * (high - low)
+
+    data["s2"] = data['pivot'] - 0.618 * (high - low)
+
+    data["sS1"] = data['pivot'] - 0.0955 * (high - low)
+    data["sS2"] = data['pivot'] - 0.191 * (high - low)
+    data["sS3"] = data['pivot'] - 0.2865 * (high - low)
+
+    data["s3"] = data['pivot'] - (high - low)
 
     # Calculate Resistances and Supports >1
     for i in range(2, levels + 1):
@@ -87,11 +101,11 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class SymphonIK(IStrategy):
-    # La Estrategia base es: FPP_v2
+class FPP_v2(IStrategy):
+    # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
 
     # Pruebas en:
-    # SymphonIK
+    # Obelisk-custom-1
 
     timeframe = '5m'
 
@@ -131,7 +145,8 @@ class SymphonIK(IStrategy):
             },
             'CCI': {
                  'cci': {'color': 'blue'},
-            },        }
+            },
+        }
     }
 
     # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
@@ -204,6 +219,8 @@ class SymphonIK(IStrategy):
         dataframe1w['r1w'] = ppw['r1']
         dataframe1w['s1w'] = ppw['s1']
         dataframe1w['rS1w'] = ppw['rS1']
+        dataframe1w['r3w'] = ppw['r3']
+
 
 
         dataframe = merge_informative_pair(
@@ -227,6 +244,7 @@ class SymphonIK(IStrategy):
             (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
             (dataframe['cci'] > 26) &
             (dataframe['close_4h'] > dataframe['pivotw_1w']) &
+            (dataframe['close_4h'] < dataframe['r2w_1w']) &
             (dataframe['close_4h'] > dataframe['ema20_4h'])
 
         ).astype('int')        
@@ -237,7 +255,7 @@ class SymphonIK(IStrategy):
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close_15m'])  
+            (dataframe['pivot_1d'] > dataframe['close_15m'])
             )
         ).astype('int')
 
