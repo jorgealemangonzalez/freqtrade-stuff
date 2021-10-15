@@ -237,8 +237,6 @@ class SymphonIK(IStrategy):
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['close'].shift(1)) &
             (dataframe['pivot_1d'] > dataframe['close'].shift(2))  
             )
         ).astype('int')
