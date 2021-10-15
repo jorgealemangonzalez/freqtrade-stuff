@@ -125,8 +125,6 @@ class SymphonIK(IStrategy):
                 'macd_4h': {'color': 'blue'},
                 'macdsignal_4h': {'color': 'orange'},
             },
-            'CCI': {
-                 'cci': {'color': 'blue'},
         }
     }
 
