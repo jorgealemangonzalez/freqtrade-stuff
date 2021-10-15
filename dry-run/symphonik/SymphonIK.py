@@ -73,6 +73,64 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFra
 
     return pd.DataFrame(index=dataframe.index, data=data)
 
+def pivots_points_week(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
+    """
+    Pivots Points
+    https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
+    Formula:
+    Pivot = (Previous High + Previous Low + Previous Close)/3
+    Resistance #1 = (2 x Pivot) - Previous Low
+    Support #1 = (2 x Pivot) - Previous High
+    Resistance #2 = (Pivot - Support #1) + Resistance #1
+    Support #2 = Pivot - (Resistance #1 - Support #1)
+    Resistance #3 = (Pivot - Support #2) + Resistance #2
+    Support #3 = Pivot - (Resistance #2 - Support #2)
+    ...
+    :param dataframe:
+    :param timeperiod: Period to compare (in ticker)
+    :param levels: Num of support/resistance desired
+    :return: dataframe
+    """
+
+    data = {}
+
+    low = qtpylib.rolling_mean(
+        series=pd.Series(index=dataframe.index, data=dataframe["low"]), window=timeperiod
+    )
+
+    high = qtpylib.rolling_mean(
+        series=pd.Series(index=dataframe.index, data=dataframe["high"]), window=timeperiod
+    )
+
+    # Pivot
+    data["pivot"] = qtpylib.rolling_mean(series=qtpylib.typical_price(dataframe), window=timeperiod)
+
+    # Resistance #1
+    # data["r1"] = (2 * data["pivot"]) - low ... Standard
+    # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    data["r1"] = data['pivot'] + 0.382 * (high - low)
+
+    data["rS1"] = data['pivot'] + 0.0955 * (high - low)
+
+
+    # Resistance #2
+    # data["s1"] = (2 * data["pivot"]) - high ... Standard
+    # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    data["s1"] = data["pivot"] - 0.382 * (high - low)
+
+    # Calculate Resistances and Supports >1
+    for i in range(2, levels + 1):
+        prev_support = data["s" + str(i - 1)]
+        prev_resistance = data["r" + str(i - 1)]
+
+        # Resitance
+        data["r" + str(i)] = (data["pivot"] - prev_support) + prev_resistance
+
+        # Support
+        data["s" + str(i)] = data["pivot"] - (prev_resistance - prev_support)
+
+    return pd.DataFrame(index=dataframe.index, data=data)
+
 
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
     ichimoku = ftt.ichimoku(dataframe,
@@ -193,12 +251,12 @@ class SymphonIK(IStrategy):
         dataframe1w = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1w")
 
-        # Pivots Points
-        pp = pivots_points(dataframe1w)
-        dataframe1w['pivot'] = pp['pivot']
-        dataframe1w['r1'] = pp['r1']
-        dataframe1w['s1'] = pp['s1']
-        dataframe1w['rS1'] = pp['rS1']
+        # Pivots Points week
+        ppw = pivots_points_week(dataframe1w)
+        dataframe1w['pivotw'] = ppw['pivot']
+        dataframe1w['r1w'] = ppw['r1']
+        dataframe1w['s1w'] = ppw['s1']
+        dataframe1w['rS1w'] = ppw['rS1']
 
 
         dataframe = merge_informative_pair(
@@ -219,7 +277,7 @@ class SymphonIK(IStrategy):
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['rS1_1d'] > dataframe['close']) &
             (dataframe['pivot_1d'] > dataframe['ema20']) &
-            (dataframe['close_4h'] > dataframe['pivot_1w']) &
+            (dataframe['close_4h'] > dataframe['pivotw_1w']) &
             (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
             (dataframe['cci'] > 26)
         ).astype('int')        
