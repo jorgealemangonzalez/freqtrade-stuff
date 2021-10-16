@@ -73,64 +73,6 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFra
 
     return pd.DataFrame(index=dataframe.index, data=data)
 
-def pivots_points_week(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
-    """
-    Pivots Points
-    https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
-    Formula:
-    Pivot = (Previous High + Previous Low + Previous Close)/3
-    Resistance #1 = (2 x Pivot) - Previous Low
-    Support #1 = (2 x Pivot) - Previous High
-    Resistance #2 = (Pivot - Support #1) + Resistance #1
-    Support #2 = Pivot - (Resistance #1 - Support #1)
-    Resistance #3 = (Pivot - Support #2) + Resistance #2
-    Support #3 = Pivot - (Resistance #2 - Support #2)
-    ...
-    :param dataframe:
-    :param timeperiod: Period to compare (in ticker)
-    :param levels: Num of support/resistance desired
-    :return: dataframe
-    """
-
-    data = {}
-
-    low = qtpylib.rolling_mean(
-        series=pd.Series(index=dataframe.index, data=dataframe["low"]), window=timeperiod
-    )
-
-    high = qtpylib.rolling_mean(
-        series=pd.Series(index=dataframe.index, data=dataframe["high"]), window=timeperiod
-    )
-
-    # Pivot
-    data["pivot"] = qtpylib.rolling_mean(series=qtpylib.typical_price(dataframe), window=timeperiod)
-
-    # Resistance #1
-    # data["r1"] = (2 * data["pivot"]) - low ... Standard
-    # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
-    data["r1"] = data['pivot'] + 0.382 * (high - low)
-
-    data["rS1"] = data['pivot'] + 0.0955 * (high - low)
-
-
-    # Resistance #2
-    # data["s1"] = (2 * data["pivot"]) - high ... Standard
-    # S1 = PP - 0.382 * (HIGHprev - LOWprev) ... fibonacci
-    data["s1"] = data["pivot"] - 0.382 * (high - low)
-
-    # Calculate Resistances and Supports >1
-    for i in range(2, levels + 1):
-        prev_support = data["s" + str(i - 1)]
-        prev_resistance = data["r" + str(i - 1)]
-
-        # Resitance
-        data["r" + str(i)] = (data["pivot"] - prev_support) + prev_resistance
-
-        # Support
-        data["s" + str(i)] = data["pivot"] - (prev_resistance - prev_support)
-
-    return pd.DataFrame(index=dataframe.index, data=data)
-
 
 def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_periods, laggin_span):
     ichimoku = ftt.ichimoku(dataframe,
@@ -146,13 +88,14 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class SymphonIK(IStrategy):
-    # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
+    # La Estrategia es: Fernando_pivots
+    # MoniGoManiHyperStrategy
+    # Semaphore_1776_v2_4h_ema20_UP_DOWN
 
-    # Pruebas en:
-    # Obelisk-custom-1
-
+    # Optimal timeframe for the strategy
     timeframe = '5m'
 
+    # generate signals from the 1h timeframe
     informative_timeframe = '1w'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
@@ -171,20 +114,16 @@ class SymphonIK(IStrategy):
     
     plot_config = {
         'main_plot': {
-            'pivot_1d': {},
-            'rS1_1d': {},
-            'r1_1d': {},
-            's1_1d': {},
             'pivot_1w': {},
+            'rS1_1w': {},
+            'r1_1w': {},
+            's1_1w': {},
             'ema20': {},
         },
         'subplots': {
             'MACD': {
-                'macd_4h': {'color': 'blue'},
-                'macdsignal_4h': {'color': 'orange'},
-            },
-            'CCI': {
-                 'cci': {'color': 'blue'},
+                'macd_1h': {'color': 'blue'},
+                'macdsignal_1h': {'color': 'orange'},
             },
         }
     }
@@ -202,7 +141,7 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1w"),(pair, "1d"),(pair, "4h"),(pair, "15m"),(pair, "5m")]
+                informative_pairs += [(pair, "1w"),(pair, "15m"),(pair, "5m")]
 
         return informative_pairs
 
@@ -213,50 +152,22 @@ class SymphonIK(IStrategy):
         dataframe15m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="15m")
 
-        # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
+        # dataframe15m['ema10'] = ta.EMA(dataframe15m, timeperiod=10)
 
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
 
-        # Pares en "4h"
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="4h")
-
-            # MACD
-        macd = ta.MACD(dataframe4h, fastperiod=12,
-                       slowperiod=26, signalperiod=9)
-        dataframe4h['macd'] = macd['macd']
-        dataframe4h['macdsignal'] = macd['macdsignal']
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
-
-
-        # Pares en "1d"
-        dataframe1d = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="1d")
-
-        # Pivots Points
-        pp = pivots_points(dataframe1d)
-        dataframe1d['pivot'] = pp['pivot']
-        dataframe1d['r1'] = pp['r1']
-        dataframe1d['s1'] = pp['s1']
-        dataframe1d['rS1'] = pp['rS1']
-
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
         # Pares en "1w"
         dataframe1w = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1w")
 
-        # Pivots Points week
-        ppw = pivots_points_week(dataframe1w)
-        dataframe1w['pivotw'] = ppw['pivot']
-        dataframe1w['r1w'] = ppw['r1']
-        dataframe1w['s1w'] = ppw['s1']
-        dataframe1w['rS1w'] = ppw['rS1']
+        # Pivots Points
+        pp = pivots_points(dataframe1w)
+        dataframe1w['pivot'] = pp['pivot']
+        dataframe1w['r1'] = pp['r1']
+        dataframe1w['s1'] = pp['s1']
+        dataframe1w['rS1'] = pp['rS1']
 
 
         dataframe = merge_informative_pair(
@@ -268,27 +179,29 @@ class SymphonIK(IStrategy):
 
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
-
-        dataframe['cci'] = ta.CCI(dataframe)
-
-
+        """
+        dataframe['close3'] = (
+            (dataframe['pivot_1d'] > dataframe['close']) &
+            (dataframe['pivot_1d'] > dataframe['close'].shift(1)) &
+            (dataframe['pivot_1d'] > dataframe['close'].shift(2)) 
+        )
+        """
         # Start Trading
+        # En Dry Run cambiar close_15m por close_10m, el informative_pairs y la parte de código de "pares en 15m"
+
         dataframe['trending_start'] = (
-            (dataframe['close'] > dataframe['pivot_1d']) &
-            (dataframe['rS1_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['ema20']) &
-            (dataframe['close_4h'] > dataframe['pivotw_1w']) &
-            (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
-            (dataframe['cci'] > 26)
+            (dataframe['close'] > dataframe['pivot_1w']) &
+            (dataframe['rS1_1w'] > dataframe['close']) &
+            (dataframe['pivot_1w'] > dataframe['ema20'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
             (
-            (dataframe['high'] >= dataframe['r1_1d'])
+            (dataframe['high'] >= dataframe['r1_1w'])
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close_15m'])   
+            (dataframe['pivot_1w'] > dataframe['close_15m'])
             )
         ).astype('int')
 
