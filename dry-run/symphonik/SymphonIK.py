@@ -93,7 +93,7 @@ class SymphonIK(IStrategy):
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
 
     # Optimal timeframe for the strategy
-    timeframe = '5m'
+    timeframe = '1h'
 
     # generate signals from the 1h timeframe
     informative_timeframe = '1w'
@@ -141,13 +141,13 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1w"),(pair, "15m"),(pair, "5m")]
+                informative_pairs += [(pair, "1w"),(pair, "15m"),(pair, "1h")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-        
+        """
         # Pares en "15m"
         dataframe15m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="15m")
@@ -156,7 +156,7 @@ class SymphonIK(IStrategy):
 
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
-
+        """
 
         # Pares en "1w"
         dataframe1w = self.dp.get_pair_dataframe(
@@ -201,7 +201,7 @@ class SymphonIK(IStrategy):
             )
             |
             (
-            (dataframe['pivot_1w'] > dataframe['close_15m'])
+            (dataframe['pivot_1w'] > dataframe['close'])
             )
         ).astype('int')
 
