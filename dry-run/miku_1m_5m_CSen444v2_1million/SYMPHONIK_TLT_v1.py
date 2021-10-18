@@ -187,7 +187,7 @@ class SYMPHONIK_TLT_v1(IStrategy):
             pair=metadata['pair'], timeframe="1h")
 
         create_ichimoku(dataframe1h, conversion_line_period=20, 
-                        displacement=88, base_line_periods=88, laggin_span=88)
+                        displacement=9, base_line_periods=88, laggin_span=88)
 
 
         dataframe = merge_informative_pair(
