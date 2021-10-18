@@ -230,7 +230,7 @@ class SYMPHONIK_TLT_v1(IStrategy):
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['senkou_b_20_1h']) &
             (dataframe['close'] > dataframe['tenkan_sen_20_1h']) &
-            (dataframe['tenkan_sen_20_1h'] > dataframe['senkou_b_200']) &
+            (dataframe['tenkan_sen_20_1h'] > dataframe['senkou_a_200']) &
             (dataframe['tenkan_sen_20_1h'] > dataframe['T33_30m']) &
             (dataframe['ema88'] > dataframe['ema440']) &
             (dataframe['ema88'] > dataframe['T88']) &
