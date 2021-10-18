@@ -1,7 +1,7 @@
 {
-    "strategy": "Miku_1m_5m_CSen444v2_N_1_5_BTC20",
+    "strategy": "SYMPHONIK_TLT_v1",
     "dry_run": true,
-    "timeframe": "1m",
+    "timeframe": "5m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
