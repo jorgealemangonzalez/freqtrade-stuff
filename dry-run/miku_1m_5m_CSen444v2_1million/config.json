@@ -55,13 +55,16 @@
         "pair_whitelist": [
         ],
         "pair_blacklist": [
-            "BNB/.*"
+            "BNB/.*",
+            ".*UP/USDT",
+            ".*BEAR/USDT",
+            ".*BULL/USDT"
         ]
     },
     "pairlists": [
         {
             "method": "VolumePairList",
-            "number_assets": 60,
+            "number_assets": 100,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
         },
@@ -75,7 +78,7 @@
         },
         {
             "method": "VolumePairList",
-            "number_assets": 30,
+            "number_assets": 80,
             "sort_key": "quoteVolume",
             "refresh_period": 1800
         }
