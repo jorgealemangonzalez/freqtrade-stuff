@@ -233,7 +233,7 @@ class SYMPHONIK_TLT_v1(IStrategy):
             (dataframe['ema88'] > dataframe['T88']) &
             (dataframe['ema20'] > dataframe['ema88']) &
             (dataframe['close'] > dataframe['pivot_1d']) &
-            (dataframe['close'] < dataframe['rS1_1d'])
+            (dataframe['close'] < dataframe['rS3_1d'])
         ).astype('int')        
 
         
