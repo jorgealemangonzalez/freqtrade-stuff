@@ -15,7 +15,7 @@ from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
-def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=6) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
@@ -53,6 +53,10 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFra
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
     data["rS1"] = data['pivot'] + 0.0955 * (high - low)
+    data["rS2"] = data['pivot'] + 0.191 * (high - low)
+    data["rS3"] = data['pivot'] + 0.2865 * (high - low)
+
+
 
 
     # Resistance #2
@@ -87,16 +91,21 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class SymphonIK(IStrategy):
-    # La Estrategia es: Fernando_pivots
-    # MoniGoManiHyperStrategy
-    # Semaphore_1776_v2_4h_ema20_UP_DOWN
+class SYMPHONIK_TLT_v1(IStrategy):
+    """
+     SYMPHONIK_TLT_v1
+     
+     La base de la Estrategia es: BlueEyes_MPP_v1
+    
+    Provando en:
+     Miku_1m_5m_CSen444v2_N_1_5 1 millon
+    """
 
     # Optimal timeframe for the strategy
-    timeframe = '1h'
+    timeframe = '5m'
 
     # generate signals from the 1h timeframe
-    informative_timeframe = '1w'
+    informative_timeframe = '1d'
 
     # WARNING: ichimoku is a long indicator, if you remove or use a
     # shorter startup_candle_count your results will be unstable/invalid
@@ -114,18 +123,21 @@ class SymphonIK(IStrategy):
     
     plot_config = {
         'main_plot': {
-            'pivot_1w': {},
-            'rS1_1w': {},
-            'r1_1w': {},
-            's1_1w': {},
+            'pivot_1d': {},
+            'rS1_1d': {},
+            'rS2_1d': {},
+            'rS3_1d': {},
+            'r1_1d': {},
+            's1_1d': {},
+            'ema440': {},
+            'ema88': {},
             'ema20': {},
+            'T88': {},
+            'T33_30m': {},
+            'senkou_b_20_1h': {},
+            'tenkan_sen_20_1h': {},
+            'senkou_b_200': {},
         },
-        'subplots': {
-            'MACD': {
-                'macd_1h': {'color': 'blue'},
-                'macdsignal_1h': {'color': 'orange'},
-            },
-        }
     }
 
     # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
@@ -141,71 +153,97 @@ class SymphonIK(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1w"),(pair, "15m"),(pair, "1h")]
+                informative_pairs += [(pair, "1d"),(pair, "1h"),(pair, "30m"),(pair, "5m")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
         """
-        # Pares en "15m"
-        dataframe15m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="15m")
-
-        # dataframe15m['ema10'] = ta.EMA(dataframe15m, timeperiod=10)
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
+        # dataframe "1d"
         """
 
-        # Pares en "1w"
-        dataframe1w = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="1w")
+        dataframe1d = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1d")
 
         # Pivots Points
-        pp = pivots_points(dataframe1w)
-        dataframe1w['pivot'] = pp['pivot']
-        dataframe1w['r1'] = pp['r1']
-        dataframe1w['s1'] = pp['s1']
-        dataframe1w['rS1'] = pp['rS1']
+        pp = pivots_points(dataframe1d)
+        dataframe1d['pivot'] = pp['pivot']
+        dataframe1d['r1'] = pp['r1']
+        dataframe1d['s1'] = pp['s1']
+        dataframe1d['rS1'] = pp['rS1']
+        dataframe1d['rS2'] = pp['rS2']
+        dataframe1d['rS3'] = pp['rS3']
 
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe1w, self.timeframe, "1w", ffill=True)
+            dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
-        # dataframe normal
+        """
+        # dataframe "1h"
+        """
+        dataframe1h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1h")
+
+        create_ichimoku(dataframe1h, conversion_line_period=20, 
+                        displacement=9, base_line_periods=88, laggin_span=88)
+
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
+
+        """
+        # dataframe "30m"
+        """
+        dataframe30m = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="30m")
+
+        dataframe30m['T33'] = ta.T3(dataframe30m, timeperiod=33)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe30m, self.timeframe, "30m", ffill=True)
+
+        """
+        # dataframe normal "5m"
+        """
+        create_ichimoku(dataframe, conversion_line_period=200, 
+                        displacement=88, base_line_periods=200, laggin_span=88)
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
+        dataframe['ema88'] = ta.EMA(dataframe, timeperiod=88)
+        dataframe['ema440'] = ta.EMA(dataframe, timeperiod=440)
+        dataframe['T88'] = ta.T3(dataframe, timeperiod=88)
 
-        create_ichimoku(dataframe, conversion_line_period=20,
-                        displacement=88, base_line_periods=88, laggin_span=88)
+
+
+
         """
-        dataframe['close3'] = (
-            (dataframe['pivot_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['close'].shift(1)) &
-            (dataframe['pivot_1d'] > dataframe['close'].shift(2)) 
-        )
+        NOTE: Start Trading
+
         """
+
         # Start Trading
-        # En Dry Run cambiar close_15m por close_10m, el informative_pairs y la parte de código de "pares en 15m"
 
         dataframe['trending_start'] = (
-            (dataframe['close'] > dataframe['pivot_1w']) &
-            (dataframe['rS1_1w'] > dataframe['close']) &
-            (dataframe['pivot_1w'] > dataframe['ema20'])
+            (dataframe['close'] > dataframe['senkou_b_20_1h']) &
+            (dataframe['close'] > dataframe['tenkan_sen_20_1h']) &
+            (dataframe['tenkan_sen_20_1h'] > dataframe['senkou_a_200']) &
+            (dataframe['tenkan_sen_20_1h'] > dataframe['T33_30m']) &
+            (dataframe['ema88'] > dataframe['ema440']) &
+            (dataframe['ema88'] > dataframe['T88']) &
+            (dataframe['ema20'] > dataframe['ema88']) &
+            (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['close'] < dataframe['rS1_1d'])
         ).astype('int')        
 
+        
         dataframe['trending_over'] = (
-            (
-            (dataframe['high'] >= dataframe['r1_1w'])
-            )
-            |
-            (
-            (dataframe['pivot_1w'] > dataframe['close'])
-            )
+            (dataframe['ema88'] < dataframe['T88']) &
+            (dataframe['close'] < dataframe['tenkan_sen_20_1h'])
         ).astype('int')
 
         return dataframe
+        
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
