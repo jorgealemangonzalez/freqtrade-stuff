@@ -89,7 +89,8 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
-
+    # La estrategia es: FPP
+  
     # Pruebas en:
     # Obelisk-custom-1
     # Semaphore_1776_v2_4h_ema20_UP_DOWN
