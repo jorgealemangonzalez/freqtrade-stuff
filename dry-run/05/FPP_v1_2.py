@@ -209,8 +209,8 @@ class FPP_v1_2(IStrategy):
         # MACD
         macd = ta.MACD(dataframe, fastperiod=12,
                        slowperiod=26, signalperiod=9)
-        dataframe4h['macd'] = macd['macd']
-        dataframe4h['macdsignal'] = macd['macdsignal']
+        dataframe['macd'] = macd['macd']
+        dataframe['macdsignal'] = macd['macdsignal']
 
         """
         NOTE: # Start Trading
