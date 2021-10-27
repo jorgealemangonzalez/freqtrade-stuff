@@ -87,13 +87,13 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
-    # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
-    # La estrategia es: FPP
-  
+class FPP_v1_3(IStrategy):
+    # La estrategia es: FPP_v1_3 (añadiendo entradas con ichimokus)
+
+    # La Estrategia base es: FPP_v1_2
+
     # Pruebas en:
-    # Obelisk-custom-1
-    # Semaphore_1776_v2_4h_ema20_UP_DOWN
+    # Semaphore y 05
 
     timeframe = '5m'
 
@@ -120,19 +120,19 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             'r1_1d': {},
             's1_1d': {},
             'ema20': {},
+            'kijun_sen_355': {},
+            'tenkan_sen_355': {},
+            'senkou_a_20': {},
+            'senkou_b_20': {},
+
         },
         'subplots': {
             'MACD': {
-                'macd_4h': {'color': 'blue'},
-                'macdsignal_4h': {'color': 'orange'},
+                'macd': {'color': 'blue'},
+                'macdsignal': {'color': 'orange'},
             },
-            'cci': {},
         }
     }
-
-    # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
-    # back into the trend at the next available opportunity, unless the trend has ended,
-    # in which case it would sell anyway.
 
     # Stoploss:
     stoploss = -0.10
@@ -143,14 +143,16 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "4h"),(pair, "15m")]
+                informative_pairs += [(pair, "1d"),(pair, "15m")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-        
-        # Pares en "15m"
+        """
+        # dataframe "15m"
+        """
+
         dataframe15m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="15m")
 
@@ -159,21 +161,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
 
-        # Pares en "4h"
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="4h")
+        """
+        # dataframe "1d"
+        """
 
-            # MACD
-        macd = ta.MACD(dataframe4h, fastperiod=12,
-                       slowperiod=26, signalperiod=9)
-        dataframe4h['macd'] = macd['macd']
-        dataframe4h['macdsignal'] = macd['macdsignal']
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
-
-
-        # Pares en "1d"
         dataframe1d = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1d")
 
@@ -188,23 +179,35 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe = merge_informative_pair(
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
+        """
         # dataframe normal
+        """
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
 
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
 
-        dataframe['cci'] = ta.CCI(dataframe)
+        create_ichimoku(dataframe, conversion_line_period=355,
+                        displacement=880, base_line_periods=175, laggin_span=175)
 
+        dataframe['cci'] = ta.CCI(dataframe, timeperiod=20)
 
-        # Start Trading
+        # MACD
+        macd = ta.MACD(dataframe, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe['macd'] = macd['macd']
+        dataframe['macdsignal'] = macd['macdsignal']
+
+        """
+        NOTE: # Start Trading
+        """
+
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
             (dataframe['rS1_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['ema20']) &
-            (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
-            (dataframe['cci'] > 26)
+            (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
+            (dataframe['senkou_a_20'] > dataframe['senkou_b_20'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
@@ -214,6 +217,10 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
             |
             (
             (dataframe['pivot_1d'] > dataframe['close_15m'])   
+            )
+            |
+            (
+            (dataframe['macd'] < dataframe['macdsignal'])   
             )
         ).astype('int')
 
