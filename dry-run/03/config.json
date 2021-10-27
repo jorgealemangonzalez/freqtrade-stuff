@@ -1,5 +1,5 @@
 {
-    "strategy": "Semaphore_1776_v2_4h_ema20_UP_DOWN",
+    "strategy": "FPP_v1_3",
     "dry_run": true,
     "timeframe": "5m",
     "max_open_trades": 5,
