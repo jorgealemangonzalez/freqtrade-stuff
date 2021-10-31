@@ -1,5 +1,5 @@
 {
-    "strategy": "FPP_v1_3",
+    "strategy": "FPP_v1_4",
     "dry_run": true,
     "timeframe": "5m",
     "max_open_trades": 5,
