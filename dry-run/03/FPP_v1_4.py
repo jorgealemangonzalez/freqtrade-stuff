@@ -87,13 +87,13 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class FPP_v1_3(IStrategy):
-    # La estrategia es: FPP_v1_3 (añadiendo entradas con ichimokus)
+class FPP_v1_4(IStrategy):
+    # La estrategia es: FPP_v1_4 (añadiendo entradas con ichimokus)
 
-    # La Estrategia base es: FPP_v1_2
+    # La Estrategia base es: FPP_v1_3
 
-    # Pruebas en:
-    # Semaphore y 05
+    # Pruebas en Máquina:
+    # 03
 
     timeframe = '5m'
 
@@ -120,6 +120,8 @@ class FPP_v1_3(IStrategy):
             'r1_1d': {},
             's1_1d': {},
             'ema20': {},
+            'ema200_1h': {},
+            'ema200': {},
             'kijun_sen_355': {},
             'tenkan_sen_355': {},
             'senkou_a_20': {},
@@ -128,8 +130,8 @@ class FPP_v1_3(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd': {'color': 'blue'},
-                'macdsignal': {'color': 'orange'},
+                'macd_15m': {'color': 'blue'},
+                'macdsignal_15m': {'color': 'orange'},
             },
         }
     }
@@ -143,7 +145,7 @@ class FPP_v1_3(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "15m")]
+                informative_pairs += [(pair, "1d"),(pair, "15m"),(pair, "1h")]
 
         return informative_pairs
 
@@ -158,8 +160,26 @@ class FPP_v1_3(IStrategy):
 
         # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
 
+        # MACD
+        macd = ta.MACD(dataframe15m, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe15m['macd'] = macd['macd']
+        dataframe15m['macdsignal'] = macd['macdsignal']
+
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
+
+        """
+        # dataframe "1h"
+        """
+
+        dataframe1h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1h")
+
+        dataframe1h['ema200'] = ta.EMA(dataframe1h, timeperiod=200)
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
 
         """
         # dataframe "1d"
@@ -184,6 +204,8 @@ class FPP_v1_3(IStrategy):
         """
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
+        dataframe['ema200'] = ta.EMA(dataframe, timeperiod=200)
+
 
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
@@ -205,7 +227,13 @@ class FPP_v1_3(IStrategy):
 
         dataframe['trending_start'] = (
             (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['close'] > dataframe['ema200']) &
+
+            (dataframe['close_1h'] > dataframe['ema200_1h']) &
+
             (dataframe['rS1_1d'] > dataframe['close']) &
+            (dataframe['pivot_1d'] > dataframe['ema20']) &
+
             (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
             (dataframe['senkou_a_20'] > dataframe['senkou_b_20'])
         ).astype('int')        
@@ -220,7 +248,7 @@ class FPP_v1_3(IStrategy):
             )
             |
             (
-            (dataframe['macd'] < dataframe['macdsignal'])   
+            (dataframe['macd_15m'] < dataframe['macdsignal_15m'])   
             )
         ).astype('int')
 
