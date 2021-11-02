@@ -50,11 +50,18 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=6) -> pd.DataFra
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
     # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    # R2 = PP + 0.618 * (HIGHprev - LOWprev) ... fibonacci
+    # R3 = PP + (HIGHprev - LOWprev) ... fibonacci
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
     data["rS1"] = data['pivot'] + 0.0955 * (high - low)
     data["rS2"] = data['pivot'] + 0.191 * (high - low)
     data["rS3"] = data['pivot'] + 0.2865 * (high - low)
+
+    data["r2"] = data['pivot'] + 0.618 * (high - low)
+
+
+    data["r3"] = data['pivot'] + (high - low)
 
 
     # Resistance #2
@@ -118,8 +125,10 @@ class FPP_v1_5(IStrategy):
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
-            'rS1_1d': {},
+            'rS2_1d': {},
             'r1_1d': {},
+            'r2_1d': {},
+            'r3_1d': {},
             's1_1d': {},
             'ema20': {},
             'ema200_1h': {},
@@ -198,6 +207,9 @@ class FPP_v1_5(IStrategy):
         dataframe1d['rS1'] = pp['rS1']
         dataframe1d['rS2'] = pp['rS2']
         dataframe1d['rS3'] = pp['rS3']
+        dataframe1d['r2'] = pp['r2']
+        dataframe1d['r3'] = pp['r3']
+
 
 
 
