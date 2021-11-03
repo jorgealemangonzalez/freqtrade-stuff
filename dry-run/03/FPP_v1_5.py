@@ -133,6 +133,7 @@ class FPP_v1_5(IStrategy):
             'ema20': {},
             'ema200_1h': {},
             'ema200': {},
+            'ema110': {},
             'kijun_sen_355': {},
             'tenkan_sen_355': {},
             'senkou_a_20': {},
