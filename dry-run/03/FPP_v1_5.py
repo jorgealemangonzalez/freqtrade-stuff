@@ -15,7 +15,7 @@ from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
-def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=8) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
@@ -50,9 +50,18 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFra
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
     # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    # R2 = PP + 0.618 * (HIGHprev - LOWprev) ... fibonacci
+    # R3 = PP + (HIGHprev - LOWprev) ... fibonacci
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
     data["rS1"] = data['pivot'] + 0.0955 * (high - low)
+    data["rS2"] = data['pivot'] + 0.191 * (high - low)
+    data["rS3"] = data['pivot'] + 0.2865 * (high - low)
+
+    data["r2"] = data['pivot'] + 0.618 * (high - low)
+
+
+    data["r3"] = data['pivot'] + (high - low)
 
 
     # Resistance #2
@@ -116,8 +125,10 @@ class FPP_v1_5(IStrategy):
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
-            'rS1_1d': {},
+            'rS2_1d': {},
             'r1_1d': {},
+            'r2_1d': {},
+            'r3_1d': {},
             's1_1d': {},
             'ema20': {},
             'ema200_1h': {},
@@ -194,6 +205,12 @@ class FPP_v1_5(IStrategy):
         dataframe1d['r1'] = pp['r1']
         dataframe1d['s1'] = pp['s1']
         dataframe1d['rS1'] = pp['rS1']
+        dataframe1d['rS2'] = pp['rS2']
+        dataframe1d['rS3'] = pp['rS3']
+        dataframe1d['r2'] = pp['r2']
+        dataframe1d['r3'] = pp['r3']
+
+
 
 
         dataframe = merge_informative_pair(
@@ -205,6 +222,8 @@ class FPP_v1_5(IStrategy):
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
         dataframe['ema200'] = ta.EMA(dataframe, timeperiod=200)
+        dataframe['ema110'] = ta.EMA(dataframe, timeperiod=110)
+
 
 
         create_ichimoku(dataframe, conversion_line_period=20,
@@ -226,13 +245,13 @@ class FPP_v1_5(IStrategy):
         """
 
         dataframe['trending_start'] = (
-            (dataframe['close'] > dataframe['pivot_1d']) &
+            (dataframe['close'] > dataframe['rS2_1d']) &
             (dataframe['close'] > dataframe['ema200']) &
 
             (dataframe['close_1h'] > dataframe['ema200_1h']) &
 
-            (dataframe['rS1_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['ema20']) &
+            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['rS2_1d'] > dataframe['ema110']) &
 
             (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
             (dataframe['senkou_a_20'] > dataframe['senkou_b_20'])
@@ -240,11 +259,11 @@ class FPP_v1_5(IStrategy):
 
         dataframe['trending_over'] = (
             (
-            (dataframe['high'] >= dataframe['r1_1d'])
+            (dataframe['high'] >= dataframe['r3_1d'])
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close_15m'])   
+            (dataframe['ema110'] > dataframe['close'])   
             )
             |
             (
