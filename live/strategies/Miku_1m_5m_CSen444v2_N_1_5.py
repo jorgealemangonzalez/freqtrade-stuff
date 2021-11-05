@@ -86,6 +86,10 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
 
 
 class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
+    # La estrategia es: Miku_1m_5m_CEma110v2_N_1_5
+
+    # La estrategia base es: Miku_1m_5m_CSen444v2_N_1_5
+
     # Optimal timeframe for the strategy
     timeframe = '1m'
 
@@ -106,12 +110,31 @@ class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
         "0": 10,
     }
 
+    plot_config = {
+        'main_plot': {
+            'kijun_sen_355_5m': {},
+            'tenkan_sen_355_5m': {},
+            'senkou_a_100': {},
+            'senkou_b_100': {},
+            'senkou_a_20': {},
+            'senkou_b_20': {},
+            'kijun_sen_20': {},
+            'tenkan_sen_20': {},
+            'tenkan_sen_444': {},
+            'senkou_a_9': {},
+            'tenkan_sen_9': {},
+            'kijun_sen_9': {},
+            'ema110_5m': {},
+
+        },
+    }
+
     # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
     # back into the trend at the next available opportunity, unless the trend has ended,
     # in which case it would sell anyway.
 
     # Stoploss:
-    stoploss = -0.1
+    stoploss = -0.10
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
@@ -125,7 +148,11 @@ class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
         dataframe5m = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe="5m")
 
         create_ichimoku(dataframe5m, conversion_line_period=355, displacement=880, base_line_periods=175, laggin_span=175)
+
+        dataframe5m['ema110'] = ta.EMA(dataframe5m, timeperiod=110)
+
         dataframe = merge_informative_pair(dataframe, dataframe5m, self.timeframe, "5m", ffill=True)
+
 
         create_ichimoku(dataframe, conversion_line_period=20, displacement=88, base_line_periods=88, laggin_span=88)
         create_ichimoku(dataframe, conversion_line_period=9, displacement=26, base_line_periods=26, laggin_span=52)
@@ -147,7 +174,7 @@ class Miku_1m_5m_CSen444v2_N_1_5(IStrategy):
                                    ).astype('int') * 4
 
         dataframe['trending_over'] = (
-                                         (dataframe['senkou_b_444'] > dataframe['close'])
+                                         (dataframe['ema110_5m'] > dataframe['close'])
                                      ).astype('int') * 1
 
         return dataframe

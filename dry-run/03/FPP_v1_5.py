@@ -15,7 +15,7 @@ from technical.util import resample_to_interval, resampled_merge
 
 logger = logging.getLogger(__name__)
 
-def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFrame:
+def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=8) -> pd.DataFrame:
     """
     Pivots Points
     https://www.tradingview.com/support/solutions/43000521824-pivot-points-standard/
@@ -50,9 +50,18 @@ def pivots_points(dataframe: pd.DataFrame, timeperiod=1, levels=4) -> pd.DataFra
     # Resistance #1
     # data["r1"] = (2 * data["pivot"]) - low ... Standard
     # R1 = PP + 0.382 * (HIGHprev - LOWprev) ... fibonacci
+    # R2 = PP + 0.618 * (HIGHprev - LOWprev) ... fibonacci
+    # R3 = PP + (HIGHprev - LOWprev) ... fibonacci
     data["r1"] = data['pivot'] + 0.382 * (high - low)
 
     data["rS1"] = data['pivot'] + 0.0955 * (high - low)
+    data["rS2"] = data['pivot'] + 0.191 * (high - low)
+    data["rS3"] = data['pivot'] + 0.2865 * (high - low)
+
+    data["r2"] = data['pivot'] + 0.618 * (high - low)
+
+
+    data["r3"] = data['pivot'] + (high - low)
 
 
     # Resistance #2
@@ -87,12 +96,13 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
-    # La Estrategia base es: Fernando_pivots (añadiendo MACD y CCI)
+class FPP_v1_5(IStrategy):
+    # La estrategia es: FPP_v1_5 (entrada a partir de rS2 y salida con ema110)
 
-    # Pruebas en:
-    # Obelisk-custom-1
-    # Semaphore_1776_v2_4h_ema20_UP_DOWN
+    # La Estrategia base es: FPP_v1_4
+
+    # Pruebas en Máquina:
+    # 03
 
     timeframe = '5m'
 
@@ -115,23 +125,28 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
     plot_config = {
         'main_plot': {
             'pivot_1d': {},
-            'rS1_1d': {},
+            'rS2_1d': {},
             'r1_1d': {},
+            'r2_1d': {},
+            'r3_1d': {},
             's1_1d': {},
             'ema20': {},
+            'ema200_1h': {},
+            'ema200': {},
+            'ema110': {},
+            'kijun_sen_355': {},
+            'tenkan_sen_355': {},
+            'senkou_a_20': {},
+            'senkou_b_20': {},
+
         },
         'subplots': {
             'MACD': {
-                'macd_4h': {'color': 'blue'},
-                'macdsignal_4h': {'color': 'orange'},
+                'macd_15m': {'color': 'blue'},
+                'macdsignal_15m': {'color': 'orange'},
             },
-            'cci': {},
         }
     }
-
-    # WARNING setting a stoploss for this strategy doesn't make much sense, as it will buy
-    # back into the trend at the next available opportunity, unless the trend has ended,
-    # in which case it would sell anyway.
 
     # Stoploss:
     stoploss = -0.10
@@ -142,37 +157,46 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "4h"),(pair, "15m")]
+                informative_pairs += [(pair, "1d"),(pair, "15m"),(pair, "1h")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-        
-        # Pares en "15m"
+        """
+        # dataframe "15m"
+        """
+
         dataframe15m = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="15m")
 
         # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
 
+        # MACD
+        macd = ta.MACD(dataframe15m, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe15m['macd'] = macd['macd']
+        dataframe15m['macdsignal'] = macd['macdsignal']
+
         dataframe = merge_informative_pair(
             dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
 
-        # Pares en "4h"
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="4h")
+        """
+        # dataframe "1h"
+        """
 
-            # MACD
-        macd = ta.MACD(dataframe4h, fastperiod=12,
-                       slowperiod=26, signalperiod=9)
-        dataframe4h['macd'] = macd['macd']
-        dataframe4h['macdsignal'] = macd['macdsignal']
+        dataframe1h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="1h")
+
+        dataframe1h['ema200'] = ta.EMA(dataframe1h, timeperiod=200)
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
+            dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
 
+        """
+        # dataframe "1d"
+        """
 
-        # Pares en "1d"
         dataframe1d = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1d")
 
@@ -182,37 +206,69 @@ class Semaphore_1776_v2_4h_ema20_UP_DOWN(IStrategy):
         dataframe1d['r1'] = pp['r1']
         dataframe1d['s1'] = pp['s1']
         dataframe1d['rS1'] = pp['rS1']
+        dataframe1d['rS2'] = pp['rS2']
+        dataframe1d['rS3'] = pp['rS3']
+        dataframe1d['r2'] = pp['r2']
+        dataframe1d['r3'] = pp['r3']
+
+
 
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
+        """
         # dataframe normal
+        """
 
         dataframe['ema20'] = ta.EMA(dataframe, timeperiod=20)
+        dataframe['ema200'] = ta.EMA(dataframe, timeperiod=200)
+        dataframe['ema110'] = ta.EMA(dataframe, timeperiod=110)
+
+
 
         create_ichimoku(dataframe, conversion_line_period=20,
                         displacement=88, base_line_periods=88, laggin_span=88)
 
-        dataframe['cci'] = ta.CCI(dataframe)
+        create_ichimoku(dataframe, conversion_line_period=355,
+                        displacement=880, base_line_periods=175, laggin_span=175)
 
+        dataframe['cci'] = ta.CCI(dataframe, timeperiod=20)
 
-        # Start Trading
+        # MACD
+        macd = ta.MACD(dataframe, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe['macd'] = macd['macd']
+        dataframe['macdsignal'] = macd['macdsignal']
+
+        """
+        NOTE: # Start Trading
+        """
+
         dataframe['trending_start'] = (
-            (dataframe['close'] > dataframe['pivot_1d']) &
-            (dataframe['rS1_1d'] > dataframe['close']) &
-            (dataframe['pivot_1d'] > dataframe['ema20']) &
-            (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &
-            (dataframe['cci'] > 26)
+            (dataframe['close'] > dataframe['rS2_1d']) &
+            (dataframe['close'] > dataframe['ema200']) &
+
+            (dataframe['close_1h'] > dataframe['ema200_1h']) &
+
+            (dataframe['r1_1d'] > dataframe['close']) &
+            (dataframe['rS2_1d'] > dataframe['ema110']) &
+
+            (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
+            (dataframe['senkou_a_20'] > dataframe['senkou_b_20'])
         ).astype('int')        
 
         dataframe['trending_over'] = (
             (
-            (dataframe['high'] >= dataframe['r1_1d'])
+            (dataframe['high'] >= dataframe['r3_1d'])
             )
             |
             (
-            (dataframe['pivot_1d'] > dataframe['close_15m'])   
+            (dataframe['ema110'] > dataframe['close'])   
+            )
+            |
+            (
+            (dataframe['macd_15m'] < dataframe['macdsignal_15m'])   
             )
         ).astype('int')
 
