@@ -96,7 +96,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class FPP_v1_5(IStrategy):
+class FPP_v1_6(IStrategy):
     # La estrategia es: FPP_v1_5 (entrada a partir de rS2 y salida con ema110)
 
     # La Estrategia base es: FPP_v1_4
@@ -157,30 +157,13 @@ class FPP_v1_5(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "15m"),(pair, "1h")]
+                informative_pairs += [(pair, "1d"),(pair, "4h"),(pair, "1h")]
 
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
 
-        """
-        # dataframe "15m"
-        """
-
-        dataframe15m = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="15m")
-
-        # dataframe15m['ema50'] = ta.EMA(dataframe15m, timeperiod=50)
-
-        # MACD
-        macd = ta.MACD(dataframe15m, fastperiod=12,
-                       slowperiod=26, signalperiod=9)
-        dataframe15m['macd'] = macd['macd']
-        dataframe15m['macdsignal'] = macd['macdsignal']
-
-        dataframe = merge_informative_pair(
-            dataframe, dataframe15m, self.timeframe, "15m", ffill=True)
-
+ 
         """
         # dataframe "1h"
         """
@@ -192,6 +175,22 @@ class FPP_v1_5(IStrategy):
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
+
+        """
+        # dataframe "4h"
+        """
+
+        dataframe4h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="4h")
+
+        # MACD
+        macd = ta.MACD(dataframe4h, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe4h['macd'] = macd['macd']
+        dataframe4h['macdsignal'] = macd['macdsignal']
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
 
         """
         # dataframe "1d"
@@ -233,13 +232,8 @@ class FPP_v1_5(IStrategy):
         create_ichimoku(dataframe, conversion_line_period=355,
                         displacement=880, base_line_periods=175, laggin_span=175)
 
-        dataframe['cci'] = ta.CCI(dataframe, timeperiod=20)
+        # dataframe['cci'] = ta.CCI(dataframe, timeperiod=20)
 
-        # MACD
-        macd = ta.MACD(dataframe, fastperiod=12,
-                       slowperiod=26, signalperiod=9)
-        dataframe['macd'] = macd['macd']
-        dataframe['macdsignal'] = macd['macdsignal']
 
         """
         NOTE: # Start Trading
@@ -268,7 +262,7 @@ class FPP_v1_5(IStrategy):
             )
             |
             (
-            (dataframe['macd_15m'] < dataframe['macdsignal_15m'])   
+            (dataframe['macd_4h'] < dataframe['macdsignal_4h'])   
             )
         ).astype('int')
 
