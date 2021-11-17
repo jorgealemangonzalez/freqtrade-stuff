@@ -142,8 +142,8 @@ class FPP_v1_6(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd_15m': {'color': 'blue'},
-                'macdsignal_15m': {'color': 'orange'},
+                'macd_4h': {'color': 'blue'},
+                'macdsignal_4h': {'color': 'orange'},
             },
         }
     }
