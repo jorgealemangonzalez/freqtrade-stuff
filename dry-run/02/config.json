@@ -53,14 +53,33 @@
             "rateLimit": 200
         },
         "pair_whitelist": [
-            ".*DOWN/USDT"
         ],
         "pair_blacklist": [
-            "BNB/.*"
+            "BNB/.*",
+            "BTC/USDT"
         ]
     },
     "pairlists": [
-        {"method": "StaticPairList"}
+        {
+            "method": "VolumePairList",
+            "number_assets": 60,
+            "sort_key": "quoteVolume",
+            "refresh_period": 1800
+        },
+        {"method": "AgeFilter", "min_days_listed": 10},
+        {"method": "PriceFilter", "low_price_ratio": 0.001},
+        {
+            "method": "RangeStabilityFilter",
+            "lookback_days": 3,
+            "min_rate_of_change": 0.05,
+            "refresh_period": 1440
+        },
+        {
+            "method": "VolumePairList",
+            "number_assets": 30,
+            "sort_key": "quoteVolume",
+            "refresh_period": 1800
+        }
     ],
     "edge": {
         "enabled": false,
@@ -77,7 +96,7 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": true,
+        "enabled": false,
         "token": "",
         "chat_id": "",
         "keyboard": [
