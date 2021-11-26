@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # Obelisk_Ichimoku_Slow v1.3 - 2021-04-20
 #
-# by Obelisk
+# by Obelisk c
 # https://github.com/brookmiles/
 #
 # 1.3 increase return without too much additional drawdown
