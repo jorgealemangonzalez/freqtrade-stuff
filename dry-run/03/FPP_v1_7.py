@@ -207,14 +207,6 @@ class FPP_v1_7(IStrategy):
         dataframe1d['r2'] = pp['r2']
         dataframe1d['r3'] = pp['r3']
 
-        '''
-        # MACD
-        macd = ta.MACD(dataframe1d, fastperiod=12,
-                       slowperiod=26, signalperiod=9)
-        dataframe1d['macd'] = macd['macd']
-        dataframe1d['macdsignal'] = macd['macdsignal']
-        '''
-
         dataframe = merge_informative_pair(
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
 
