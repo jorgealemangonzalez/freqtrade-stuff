@@ -1,5 +1,5 @@
 {
-    "strategy": "SYMPHONIK_TLT_v1",
+    "strategy": "KALIOPE_v1",
     "dry_run": true,
     "timeframe": "5m",
     "max_open_trades": 5,
