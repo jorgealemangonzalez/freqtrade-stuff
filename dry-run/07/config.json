@@ -58,6 +58,7 @@
             "BNB/.*",
             ".*UP/USDT",
             ".*BEAR/USDT",
+            ".*DOWN/USDT",
             ".*BULL/USDT"
         ]
     },
