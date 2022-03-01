@@ -76,6 +76,7 @@
             "VET/USDT",
             "XLM/USDT",
             "GALA/USDT",
+            "IOST/USDT",
             "AVAX/USDT"
         ],
         "pair_blacklist": [
