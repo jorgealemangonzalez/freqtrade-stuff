@@ -7,7 +7,7 @@
     "stake_amount": "unlimited",
     "tradable_balance_ratio": 0.99,
     "fiat_display_currency": "USD",
-    "dry_run_wallet": 1000000,
+    "dry_run_wallet": 1000,
     "cancel_open_orders_on_exit": false,
     "forcebuy_enable": false,
     "unfilledtimeout": {
@@ -53,34 +53,48 @@
             "rateLimit": 200
         },
         "pair_whitelist": [
+            "ADA/USDT",
+            "ALICE/USDT",
+            "ATOM/USDT",
+            "AXS/USDT",
+            "BTC/USDT",
+            "COTI/USDT",
+            "DOT/USDT",
+            "ETH/USDT",
+            "ICP/USDT",
+            "KSM/USDT",
+            "LINK/USDT",
+            "LTC/USDT",
+            "MANA/USDT",
+            "MATIC/USDT",
+            "RUNE/USDT",
+            "SAND/USDT",
+            "SOL/USDT",
+            "THETA/USDT",
+            "TRX/USDT",
+            "UNI/USDT",
+            "VET/USDT",
+            "XLM/USDT",
+            "GALA/USDT",
+            "IOTX/USDT",
+            "IOST/USDT",
+            "AVAX/USDT",
+            "DENT/USDT",
+            "NEAR/USDT",
+            "SLP/USDT",
+            "OMG/USDT"
         ],
         "pair_blacklist": [
             "BNB/.*",
             ".*UP/USDT",
             ".*BEAR/USDT",
+            ".*DOWN/USDT",
             ".*BULL/USDT"
         ]
     },
     "pairlists": [
         {
-            "method": "VolumePairList",
-            "number_assets": 100,
-            "sort_key": "quoteVolume",
-            "refresh_period": 1800
-        },
-        {"method": "AgeFilter", "min_days_listed": 10},
-        {"method": "PriceFilter", "low_price_ratio": 0.001},
-        {
-            "method": "RangeStabilityFilter",
-            "lookback_days": 3,
-            "min_rate_of_change": 0.05,
-            "refresh_period": 1440
-        },
-        {
-            "method": "VolumePairList",
-            "number_assets": 80,
-            "sort_key": "quoteVolume",
-            "refresh_period": 1800
+            "method": "StaticPairList"
         }
     ],
     "edge": {
@@ -96,6 +110,27 @@
         "min_trade_number": 10,
         "max_trade_duration_minute": 1440,
         "remove_pumps": false
+    },
+    "telegram": {
+        "enabled": false,
+        "token": "",
+        "chat_id": "",
+        "keyboard": [
+            ["/daily", "/profit", "/balance"],
+            ["/status", "/status table", "/performance"],
+            ["/whitelist", "/locks", "/trades"],
+            ["/start", "/stop", "/stopbuy", "/help"]
+        ]
+    },
+    "api_server": {
+        "enabled": false,
+        "listen_ip_address": "127.0.0.1",
+        "listen_port": 8080,
+        "verbosity": "info",
+        "jwt_secret_key": "somethingrandom",
+        "CORS_origins": [],
+        "username": "",
+        "password": ""
     },
     "bot_name": "freqtrade",
     "initial_state": "running",
