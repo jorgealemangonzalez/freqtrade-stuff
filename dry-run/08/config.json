@@ -76,8 +76,13 @@
             "VET/USDT",
             "XLM/USDT",
             "GALA/USDT",
+            "IOTX/USDT",
             "IOST/USDT",
-            "AVAX/USDT"
+            "AVAX/USDT",
+            "DENT/USDT",
+            "NEAR/USDT",
+            "SLP/USDT",
+            "OMG/USDT"
         ],
         "pair_blacklist": [
             "BNB/.*",
