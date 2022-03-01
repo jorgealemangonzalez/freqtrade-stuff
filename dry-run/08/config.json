@@ -54,7 +54,17 @@
         },
         "pair_whitelist": [
             "ADA/USDT",
-            "ALICE/USDT"
+            "ALICE/USDT",
+            "ATOM/USDT",
+            "AXS/USDT",
+            "BTC/USDT",
+            "COTI/USDT",
+            "DOT/USDT",
+            "ETH/USDT",
+            "ICP/USDT",
+            "KSM/USDT",
+            "LINK/USDT",
+            "LTC/USDT"
         ],
         "pair_blacklist": [
             "BNB/.*",
