@@ -73,7 +73,16 @@
             "THETA/USDT",
             "TRX/USDT",
             "UNI/USDT",
-            "VET/USDT"
+            "VET/USDT",
+            "XLM/USDT",
+            "GALA/USDT",
+            "IOTEX/USDT",
+            "IOST/USDT",
+            "AVAX/USDT",
+            "DENT/USDT",
+            "NEAR/USDT",
+            "SLP/USDT",
+            "OMG/USDT"
         ],
         "pair_blacklist": [
             "BNB/.*",
