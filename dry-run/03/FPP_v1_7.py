@@ -96,7 +96,7 @@ def create_ichimoku(dataframe, conversion_line_period, displacement, base_line_p
     dataframe[f'senkou_b_{conversion_line_period}'] = ichimoku['senkou_span_b']
 
 
-class FPP_v1_6(IStrategy):
+class FPP_v1_7(IStrategy):
     # La estrategia es: FPP_v1_5 (entrada a partir de rS2 y salida con ema110)
 
     # La Estrategia base es: FPP_v1_4
@@ -142,8 +142,8 @@ class FPP_v1_6(IStrategy):
         },
         'subplots': {
             'MACD': {
-                'macd_4h': {'color': 'blue'},
-                'macdsignal_4h': {'color': 'orange'},
+                'macd_3d': {'color': 'blue'},
+                'macdsignal_3d': {'color': 'orange'},
             },
         }
     }
@@ -157,7 +157,7 @@ class FPP_v1_6(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "4h"),(pair, "1h")]
+                informative_pairs += [(pair, "1d"),(pair, "3d"),(pair, "1h")]
 
         return informative_pairs
 
@@ -167,7 +167,7 @@ class FPP_v1_6(IStrategy):
         """
         # dataframe "1h"
         """
-
+        
         dataframe1h = self.dp.get_pair_dataframe(
             pair=metadata['pair'], timeframe="1h")
 
@@ -175,23 +175,23 @@ class FPP_v1_6(IStrategy):
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
-
+        
         """
-        # dataframe "4h"
+        # dataframe "3d"
         """
-
-        dataframe4h = self.dp.get_pair_dataframe(
-            pair=metadata['pair'], timeframe="4h")
+        
+        dataframe3d = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="3d")
 
         # MACD
-        macd = ta.MACD(dataframe4h, fastperiod=12,
+        macd = ta.MACD(dataframe3d, fastperiod=12,
                        slowperiod=26, signalperiod=9)
-        dataframe4h['macd'] = macd['macd']
-        dataframe4h['macdsignal'] = macd['macdsignal']
+        dataframe3d['macd'] = macd['macd']
+        dataframe3d['macdsignal'] = macd['macdsignal']
 
         dataframe = merge_informative_pair(
-            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
-
+            dataframe, dataframe3d, self.timeframe, "3d", ffill=True)
+        
         """
         # dataframe "1d"
         """
@@ -210,8 +210,13 @@ class FPP_v1_6(IStrategy):
         dataframe1d['r2'] = pp['r2']
         dataframe1d['r3'] = pp['r3']
 
-
-
+        '''
+        # MACD
+        macd = ta.MACD(dataframe1d, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe1d['macd'] = macd['macd']
+        dataframe1d['macdsignal'] = macd['macdsignal']
+        '''
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1d, self.timeframe, "1d", ffill=True)
@@ -249,7 +254,10 @@ class FPP_v1_6(IStrategy):
             (dataframe['rS2_1d'] > dataframe['ema110']) &
 
             (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
-            (dataframe['senkou_a_20'] > dataframe['senkou_b_20'])
+            (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
+
+            (dataframe['macd_3d'] > dataframe['macdsignal_3d'])   
+
         ).astype('int')        
 
         dataframe['trending_over'] = (
@@ -262,7 +270,7 @@ class FPP_v1_6(IStrategy):
             )
             |
             (
-            (dataframe['macd_4h'] < dataframe['macdsignal_4h'])   
+            (dataframe['macd_3d'] < dataframe['macdsignal_3d'])   
             )
         ).astype('int')
 
