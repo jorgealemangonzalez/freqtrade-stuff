@@ -141,9 +141,13 @@ class FPP_v1_7(IStrategy):
 
         },
         'subplots': {
-            'MACD': {
+            'MACD3d': {
                 'macd_3d': {'color': 'blue'},
                 'macdsignal_3d': {'color': 'orange'},
+            },
+            'MACD4h': {
+                'macd_4h': {'color': 'blue'},
+                'macdsignal_4h': {'color': 'orange'},
             },
         }
     }
@@ -157,7 +161,7 @@ class FPP_v1_7(IStrategy):
                              for pair in pairs]
         if self.dp:
             for pair in pairs:
-                informative_pairs += [(pair, "1d"),(pair, "3d"),(pair, "1h")]
+                informative_pairs += [(pair, "1d"),(pair, "3d"),(pair, "4h"),(pair, "1h")]
 
         return informative_pairs
 
@@ -175,6 +179,23 @@ class FPP_v1_7(IStrategy):
 
         dataframe = merge_informative_pair(
             dataframe, dataframe1h, self.timeframe, "1h", ffill=True)
+        
+        """
+        # dataframe "4h"
+        """
+
+        dataframe4h = self.dp.get_pair_dataframe(
+            pair=metadata['pair'], timeframe="4h")
+
+        # MACD
+        macd = ta.MACD(dataframe4h, fastperiod=12,
+                       slowperiod=26, signalperiod=9)
+        dataframe4h['macd'] = macd['macd']
+        dataframe4h['macdsignal'] = macd['macdsignal']
+
+        dataframe = merge_informative_pair(
+            dataframe, dataframe4h, self.timeframe, "4h", ffill=True)
+
         
         """
         # dataframe "3d"
@@ -255,7 +276,8 @@ class FPP_v1_7(IStrategy):
 
             (dataframe['kijun_sen_355'] >= dataframe['tenkan_sen_355']) &
             (dataframe['senkou_a_20'] > dataframe['senkou_b_20']) &
-
+            
+            (dataframe['macd_4h'] > dataframe['macdsignal_4h']) &  
             (dataframe['macd_3d'] > dataframe['macdsignal_3d'])   
 
         ).astype('int')        
@@ -267,6 +289,10 @@ class FPP_v1_7(IStrategy):
             |
             (
             (dataframe['ema110'] > dataframe['close'])   
+            )
+            |
+            (
+            (dataframe['macd_4h'] < dataframe['macdsignal_4h'])   
             )
             |
             (
