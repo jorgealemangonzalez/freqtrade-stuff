@@ -1,5 +1,5 @@
 {
-    "strategy": "NostalgiaForInfinityV6",
+    "strategy": "KALIOPE_v1",
     "dry_run": false,
     "timeframe": "5m",
     "max_open_trades": 5,
@@ -53,35 +53,48 @@
             "rateLimit": 200
         },
         "pair_whitelist": [
+            "ADA/USDT",
+            "ALICE/USDT",
+            "ATOM/USDT",
+            "AXS/USDT",
+            "BTC/USDT",
+            "COTI/USDT",
+            "DOT/USDT",
+            "ETH/USDT",
+            "ICP/USDT",
+            "KSM/USDT",
+            "LINK/USDT",
+            "LTC/USDT",
+            "MANA/USDT",
+            "MATIC/USDT",
+            "RUNE/USDT",
+            "SAND/USDT",
+            "SOL/USDT",
+            "THETA/USDT",
+            "TRX/USDT",
+            "UNI/USDT",
+            "VET/USDT",
+            "XLM/USDT",
+            "GALA/USDT",
+            "IOTX/USDT",
+            "IOST/USDT",
+            "AVAX/USDT",
+            "DENT/USDT",
+            "NEAR/USDT",
+            "SLP/USDT",
+            "OMG/USDT"
         ],
         "pair_blacklist": [
             "BNB/.*",
             ".*UP/USDT",
-            ".*DOWN/USDT",
             ".*BEAR/USDT",
+            ".*DOWN/USDT",
             ".*BULL/USDT"
         ]
     },
     "pairlists": [
         {
-            "method": "VolumePairList",
-            "number_assets": 100,
-            "sort_key": "quoteVolume",
-            "refresh_period": 1800
-        },
-        {"method": "AgeFilter", "min_days_listed": 10},
-        {"method": "PriceFilter", "low_price_ratio": 0.001},
-        {
-            "method": "RangeStabilityFilter",
-            "lookback_days": 3,
-            "min_rate_of_change": 0.05,
-            "refresh_period": 1440
-        },
-        {
-            "method": "VolumePairList",
-            "number_assets": 80,
-            "sort_key": "quoteVolume",
-            "refresh_period": 1800
+            "method": "StaticPairList"
         }
     ],
     "edge": {
