@@ -13,8 +13,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Ichimoku_ZEMA v1
-# MIKUZEMA_v1
 
 def ssl_atr(dataframe, length = 7):
     df = dataframe.copy()
@@ -26,7 +24,7 @@ def ssl_atr(dataframe, length = 7):
     df['sslUp'] = np.where(df['hlv'] < 0, df['smaLow'], df['smaHigh'])
     return df['sslDown'], df['sslUp']
 
-class KALIOPE_v1(IStrategy):
+class Andromeda(IStrategy):
 
     # Optimal timeframe for the strategy
     timeframe = '5m'
@@ -44,17 +42,17 @@ class KALIOPE_v1(IStrategy):
 
     # ROI table:
     minimal_roi = {
-        "0": 0.078,
-        "40": 0.062,
-        "99": 0.039,
-        "218": 0
+        "0": 0.78,
+        "40": 0.62,
+        "99": 0.39,
+        "720": 0
     }
 
-    stoploss = -0.10
+    stoploss = -0.294
 
     # Buy hyperspace params:
     buy_params = {
-     'low_offset': 0.964, 'zema_len_buy': 61
+     'low_offset': 0.964, 'zema_len_buy': 51
     }
 
     # Sell hyperspace params:
@@ -64,8 +62,8 @@ class KALIOPE_v1(IStrategy):
 
     low_offset = DecimalParameter(0.80, 1.20, default=1.004, space='buy', optimize=True)
     high_offset = DecimalParameter(0.80, 1.20, default=0.964, space='sell', optimize=True)
-    zema_len_buy = IntParameter(30, 90, default=72, space='buy', optimize=True)
-    zema_len_sell = IntParameter(30, 90, default=51, space='sell', optimize=True)
+    zema_len_buy = IntParameter(30, 110, default=88, space='buy', optimize=True)
+    zema_len_sell = IntParameter(30, 110, default=51, space='sell', optimize=True)
 
     def informative_pairs(self):
         pairs = self.dp.current_whitelist()
@@ -73,14 +71,12 @@ class KALIOPE_v1(IStrategy):
         return informative_pairs
 
     def slow_tf_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        
-        # Ahora mismo el ichimoku esta transportado como si fuera el 1760,880,880,880 de 1h
 
-        displacement = 88
+        displacement = 30
         ichimoku = ftt.ichimoku(dataframe, 
-            conversion_line_period=176, 
-            base_line_periods=352,
-            laggin_span=176, 
+            conversion_line_period=20, 
+            base_line_periods=60,
+            laggin_span=120, 
             displacement=displacement
             )
 
