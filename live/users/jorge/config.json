@@ -1,5 +1,5 @@
 {
-    "strategy": "KALIOPE_v1",
+    "strategy": "Andromeda",
     "dry_run": false,
     "timeframe": "5m",
     "max_open_trades": 5,
