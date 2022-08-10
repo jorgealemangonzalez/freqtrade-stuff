@@ -104,7 +104,7 @@ class FPP_v1_7(IStrategy):
     # Pruebas en Máquina:
     # 03
 
-    timeframe = '5m'
+    timeframe = '15m'
 
     informative_timeframe = '1d'
 
