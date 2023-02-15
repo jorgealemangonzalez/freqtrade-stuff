@@ -9,7 +9,11 @@
     "fiat_display_currency": "USD",
     "dry_run_wallet": 1000,
     "cancel_open_orders_on_exit": false,
-    "forcebuy_enable": false,
+    "force_entry_enable": false,
+    "ignore_buying_expired_candle_after": 600,
+    "exit_sell_signal": true,
+    "exit_profit_only": false,
+    "ignore_roi_if_entry_signal": true,
     "unfilledtimeout": {
         "buy": 10,
         "sell": 30
@@ -28,11 +32,7 @@
         "price_side": "bid",
         "use_order_book": false,
         "order_book_min": 1,
-        "order_book_max": 2,
-        "use_sell_signal": true,
-        "sell_profit_only": false,
-        "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600
+        "order_book_max": 2
     },
     "order_types": {
         "buy": "market",
