@@ -9,14 +9,18 @@
     "fiat_display_currency": "USD",
     "dry_run_wallet": 1000,
     "cancel_open_orders_on_exit": false,
-    "forcebuy_enable": false,
+    "force_entry_enable": false,
+    "ignore_buying_expired_candle_after": 600,
+    "exit_sell_signal": true,
+    "exit_profit_only": false,
+    "ignore_roi_if_entry_signal": true,
     "unfilledtimeout": {
-        "buy": 10,
-        "sell": 30
+        "entry": 10,
+        "exit": 30
     },
-    "bid_strategy": {
+    "entry_pricing": {
         "price_side": "ask",
-        "ask_last_balance": 0.0,
+        "price_last_balance": 0.0,
         "use_order_book": false,
         "order_book_top": 2,
         "check_depth_of_market": {
@@ -24,21 +28,17 @@
             "bids_to_ask_delta": 1
         }
     },
-    "ask_strategy": {
+    "exit_pricing": {
         "price_side": "bid",
         "use_order_book": false,
         "order_book_min": 1,
-        "order_book_max": 2,
-        "use_sell_signal": true,
-        "sell_profit_only": false,
-        "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600
+        "order_book_max": 2
     },
     "order_types": {
-        "buy": "market",
-        "sell": "market",
-        "forcesell": "market",
-        "emergencysell": "market",
+        "entry": "market",
+        "exit": "market",
+        "force_exit": "market",
+        "emergency_exit": "market",
         "stoploss": "market",
         "stoploss_on_exchange": false,
         "stoploss_on_exchange_interval": 60
