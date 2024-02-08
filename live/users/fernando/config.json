@@ -1,7 +1,7 @@
 {
-    "strategy": "Miku_1m_5m_CSen444v2_N_1_5",
+    "strategy": "Andromeda",
     "dry_run": false,
-    "timeframe": "1m",
+    "timeframe": "5m",
     "max_open_trades": 5,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
@@ -9,14 +9,18 @@
     "fiat_display_currency": "USD",
     "dry_run_wallet": 100,
     "cancel_open_orders_on_exit": false,
-    "forcebuy_enable": false,
+    "force_entry_enable": false,
+    "ignore_buying_expired_candle_after": 600,
+    "exit_sell_signal": true,
+    "exit_profit_only": false,
+    "ignore_roi_if_entry_signal": true,
     "unfilledtimeout": {
-        "buy": 10,
-        "sell": 30
+        "entry": 10,
+        "exit": 30
     },
-    "bid_strategy": {
+    "entry_pricing": {
         "price_side": "ask",
-        "ask_last_balance": 0.0,
+        "price_last_balance": 0.0,
         "use_order_book": false,
         "order_book_top": 2,
         "check_depth_of_market": {
@@ -24,21 +28,17 @@
             "bids_to_ask_delta": 1
         }
     },
-    "ask_strategy": {
+    "exit_pricing": {
         "price_side": "bid",
         "use_order_book": false,
         "order_book_min": 1,
-        "order_book_max": 2,
-        "use_sell_signal": true,
-        "sell_profit_only": false,
-        "ignore_roi_if_buy_signal": true,
-        "ignore_buying_expired_candle_after": 600
+        "order_book_max": 2
     },
     "order_types": {
-        "buy": "market",
-        "sell": "market",
-        "forcesell": "market",
-        "emergencysell": "market",
+        "entry": "market",
+        "exit": "market",
+        "force_exit": "market",
+        "emergency_exit": "market",
         "stoploss": "market",
         "stoploss_on_exchange": false,
         "stoploss_on_exchange_interval": 60
@@ -53,35 +53,98 @@
             "rateLimit": 200
         },
         "pair_whitelist": [
+            "AAVE/USDT",
+            "ACM/USDT",
+            "ADA/USDT",
+            "ALGO/USDT",
+            "ALICE/USDT",
+            "ASR/USDT",
+            "ATM/USDT",
+            "ATOM/USDT",
+            "AUD/USDT",
+            "AVAX/USDT",
+            "AXS/USDT",
+            "BAKE/USDT",
+            "BCH/USDT",
+            "BTC/USDT",
+            "BTT/USDT",
+            "BUSD/USDT",
+            "CAKE/USDT",
+            "CHR/USDT",
+            "CHZ/USDT",
+            "COTI/USDT",
+            "CRV/USDT",
+            "DATA/USDT",
+            "DEGO/USDT",
+            "DENT/USDT",
+            "DOGE/USDT",
+            "DOT/USDT",
+            "ENJ/USDT",
+            "EOS/USDT",
+            "ETC/USDT",
+            "ETH/USDT",
+            "EUR/USDT",
+            "FIL/USDT",
+            "FTM/USDT",
+            "GBP/USDT",
+            "GTC/USDT",
+            "GTO/USDT",
+            "HARD/USDT",
+            "ICP/USDT",
+            "IOST/USDT",
+            "IOTX/USDT",
+            "KSM/USDT",
+            "LINK/USDT",
+            "LTC/USDT",
+            "MANA/USDT",
+            "MATIC/USDT",
+            "MINA/USDT",
+            "NEO/USDT",
+            "OGN/USDT",
+            "OMG/USDT",
+            "PSG/USDT",
+            "RUNE/USDT",
+            "SAND/USDT",
+            "SHIB/USDT",
+            "SLP/USDT",
+            "SNX/USDT",
+            "SOL/USDT",
+            "STMX/USDT",
+            "STPT/USDT",
+            "SUPER/USDT",
+            "SUSHI/USDT",
+            "SXP/USDT",
+            "TFUEL/USDT",
+            "THETA/USDT",
+            "TLM/USDT",
+            "TOMO/USDT",
+            "TORN/USDT",
+            "TRU/USDT",
+            "TRX/USDT",
+            "UNI/USDT",
+            "USDC/USDT",
+            "VET/USDT",
+            "WAVES/USDT",
+            "WIN/USDT",
+            "WRX/USDT",
+            "XLM/USDT",
+            "XMR/USDT",
+            "XRP/USDT",
+            "YFI/USDT",
+            "ZEC/USDT",
+            "ZIL/USDT"
         ],
         "pair_blacklist": [
             "BNB/.*",
             ".*UP/USDT",
-            ".*DOWN/USDT",
             ".*BEAR/USDT",
+            ".*DOWN/USDT",
             ".*BULL/USDT"
         ]
     },
     "pairlists": [
         {
-            "method": "VolumePairList",
-            "number_assets": 60,
-            "sort_key": "quoteVolume",
-            "refresh_period": 1800
-        },
-        {"method": "AgeFilter", "min_days_listed": 10},
-        {"method": "PriceFilter", "low_price_ratio": 0.001},
-        {
-            "method": "RangeStabilityFilter",
-            "lookback_days": 3,
-            "min_rate_of_change": 0.05,
-            "refresh_period": 1440
-        },
-        {
-            "method": "VolumePairList",
-            "number_assets": 30,
-            "sort_key": "quoteVolume",
-            "refresh_period": 1800
+            "method": "StaticPairList"
         }
     ],
     "edge": {
@@ -99,7 +162,7 @@
         "remove_pumps": false
     },
     "telegram": {
-        "enabled": true,
+        "enabled": false,
         "token": "",
         "chat_id": "",
         "keyboard": [
@@ -110,7 +173,7 @@
         ]
     },
     "api_server": {
-        "enabled": true,
+        "enabled": false,
         "listen_ip_address": "127.0.0.1",
         "listen_port": 8080,
         "verbosity": "info",
