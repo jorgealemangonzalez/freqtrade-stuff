@@ -44,9 +44,10 @@
         "stoploss_on_exchange_interval": 60
     },
     "exchange": {
-        "name": "binance",
+        "name": "kucoin",
         "key": "",
         "secret": "",
+        "password": "",
         "ccxt_config": {"enableRateLimit": true},
         "ccxt_async_config": {
             "enableRateLimit": true,
@@ -135,7 +136,7 @@
             "ZIL/USDT"
         ],
         "pair_blacklist": [
-            "BNB/.*",
+            "KCS/.*",
             ".*UP/USDT",
             ".*BEAR/USDT",
             ".*DOWN/USDT",
