@@ -19,7 +19,7 @@
         "exit": 30
     },
     "entry_pricing": {
-        "price_side": "ask",
+        "price_side": "other",
         "price_last_balance": 0.0,
         "use_order_book": false,
         "order_book_top": 2,
@@ -29,7 +29,7 @@
         }
     },
     "exit_pricing": {
-        "price_side": "bid",
+        "price_side": "other",
         "use_order_book": false,
         "order_book_min": 1,
         "order_book_max": 2
